@@ -31,7 +31,7 @@ Não diga mais nada, não explique cada opção, não adicione subtítulos. Espe
 
 ### Após a escolha do usuário
 
-- **Se escolher `1` (Adaptação de copy):** responder exatamente `Qual o briefing da adaptação a ser feita?` e esperar. Esta função ainda não foi ensinada — o usuário vai instruir o protocolo na hora. Receber o briefing, executar o que for pedido, e (se relevante) propor salvar o aprendizado na própria skill ao final.
+- **Se escolher `1` (Adaptação de copy):** responder exatamente `Qual o briefing da adaptação a ser feita?` e esperar. Seguir o fluxo de adaptação descrito na seção `## Função: Adaptação de copy` abaixo (convenções de marcação `[old] <new>` / cor + armadilhas (a)–(e)). Se o briefing pedir algo fora do que está descrito, executar o pedido e propor salvar o aprendizado na própria skill ao final.
 - **Se escolher `2` (Padronização de copy):** responder exatamente `O que iremos padronizar?` e esperar. A partir daí, seguir o fluxo de padronização descrito abaixo (gatilhos de linguagem natural → sub-função).
 
 ## Fluxo de invocação
@@ -50,6 +50,118 @@ Não tem menu por enquanto — apenas uma função (`padronização`). O usuári
 | "body tá com cor estranha", "texto não tá preto" | `body_preto` |
 
 Quando o pedido for ambíguo (ex: "padroniza só os títulos e tira travessão"), executar APENAS as sub-funções nomeadas, NÃO a padronização completa.
+
+## Função: Adaptação de copy
+
+Adaptação = aplicar trocas pedidas pelo copywriter num doc existente (ex.: trocar nome de produto, trocar formato, trocar avatar). O Copychief reconhece as convenções de marcação que o copywriter usa pra sinalizar o que sai e o que entra, e executa as substituições com cuidado pras armadilhas conhecidas.
+
+### Convenções de marcação (como o copywriter sinaliza o que mudar)
+
+**1. Tags `[old] <new>`** — formato explícito.
+- `[texto antigo]` = sai
+- `<texto novo>` = entra
+- Pode aparecer colado ou separado no doc. Ex: `[Max Brain] <Neo Vital>`.
+
+**2. Cor vermelho / verde no Google Docs** — formato visual, equivalente às tags.
+- **Vermelho** = sai (= `[old]`)
+- **Verde** = entra (= `<new>`)
+- No doc os dois textos ficam **adjacentes** no mesmo trecho. Ex: "Max Brain" pintado de vermelho + "Neo Vital" pintado de verde aparecem como `"Max Brain Neo Vital"` na ordem natural da leitura.
+- A intenção é: remover o vermelho, manter o verde.
+
+**3. Termo antigo sozinho (sem par vermelho/verde nem tag)** — ambíguo, NÃO substituir cegamente:
+- Pode ser esquecimento do copywriter (ele queria marcar mas não marcou). → Perguntar antes de aplicar.
+- Pode ser **bloco de referência / depoimento / lip-sync** (texto que vai ser redublado, então o texto escrito não importa). Sinais: trecho em PT seguido de tradução EN, nota tipo "Lip Sync à partir do MM:SS", link de YouTube/Drive adjacente, rótulo "Depoimento N" ou "[Anexo - Depoimento]". → Não mexer.
+
+### Armadilhas críticas em trocas de produto / formato
+
+Quando a adaptação envolve trocar produto ou formato (ex.: gummy → drops, capsule → powder), rodar SEMPRE estes 5 checks antes de fechar a adaptação. São erros que o usuário paga caro lá na frente se passarem.
+
+**(a) Auto-ataque ao novo formato**
+
+Build-ups de VSL/copy geralmente atacam formatos concorrentes — algo como *"unlike capsules, drops, and powders that lose potency before reaching the gut..."*. Se o **novo** formato escolhido tá na lista que a copy ataca, é auto-sabotagem: o lead lê o ataque, depois lê a oferta no mesmo formato atacado, e perde a confiança.
+
+Como checar: procurar listas de comparação ("unlike X, Y, and Z", "instead of A, B, or C") no doc inteiro e verificar se o novo formato aparece como alvo do ataque. Esses ataques costumam aparecer 2-4 vezes no doc (build-up + reforço no bloco de oferta). Flagar antes de aplicar a troca.
+
+**(b) Gramática quebrada após substituição mecânica**
+
+Substituição cega quebra concordância quando o quantificador depende da contável/incontável da palavra trocada:
+- `"one capsule a day"` → `"one powder a day"` (powder é incontável; "one powder" não funciona)
+- `"every single capsule"` → `"every single powder"` (mesmo problema)
+- `"two capsules"` → `"two powders"` (idem)
+- `"take a few drops"` → `"take a few capsule"` (inverso: drops é contável, capsule isolado precisa de plural ou artigo)
+
+Padrão de busca: quantificadores (`one`, `two`, `every`, `each`, `single`, `a few`) colados na palavra trocada. Sugerir substitutos coerentes: `one scoop`, `every dose`, `each scoop`, conforme o formato.
+
+**(c) Typos de pareamento grudado**
+
+Quando a marcação por cor vermelho/verde fica colada num substantivo seguinte **sem espaço**, ao remover o vermelho o resultado sai grudado.
+
+Exemplo real: o copywriter escreveu `"Neuro Coffee Neo Vitalformula"` (vermelho em "Neuro Coffee", verde em "Neo Vital", e "formula" preto na sequência). Ao remover o vermelho fica `"Neo Vitalformula"` — uma palavra inexistente, grudada.
+
+Padrão de busca: o nome novo do produto colado em substantivos comuns do contexto: `formula`, `package`, `kit`, `treatment`, `batch`, `bottle`, `jar`. Inserir espaço onde necessário.
+
+**(d) Coerência da unidade de embalagem (bottle ↔ jar)**
+
+Convenção fixa da operação — a unidade de embalagem segue o formato do produto:
+
+| Formato | Unidade de embalagem |
+|:--|:--|
+| capsule, drops, gummy | **bottle** |
+| powder | **jar** |
+
+Quando o briefing pede troca de formato, **a unidade de embalagem muda junto**, mesmo que o briefing não marque explicitamente.
+
+- Troca para powder → toda menção a `bottle`, `bottles`, `Six Bottle Kit`, `per bottle`, `X bottles left`, `on the bottles` vira a versão com `jar`.
+- Troca para capsule/drops/gummy → todo `jar` residual vira `bottle`.
+
+Se o doc original já está incoerente (ex.: fala "bottle" mas o produto é powder), a convenção é fonte de verdade — corrigir pra `jar`, e tratar o doc como desatualizado.
+
+**(e) Não confundir nome do produto com palavra do formato**
+
+Quando uma frase mistura nome do produto (marca, maiúsculo) com palavra do formato (genérico, minúsculo), são **duas trocas distintas com escopo diferente**:
+
+- **Nome do produto** (marca): "Lipotrine" → "Melt Drops" (nome novo da marca).
+- **Palavra do formato** (genérico): "gummy" → "drop", "gummies" → "drops", "gelatin gummy formula" → "sublingual drop formula".
+
+Erro clássico: trocar a palavra de formato pelo nome da marca nova. Ex.:
+- ❌ `"the gummy formula"` → `"the Melt Drops formula"` (mistura marca com descrição genérica)
+- ❌ `"one gummy"` → `"a few Melt Drops"` (usa nome próprio como contagem de dose)
+
+Regra: antes de cada substituição, perguntar mentalmente: **"esta palavra é o nome próprio da marca, ou o substantivo genérico do formato/dose?"** Substituir dentro da mesma categoria.
+
+Tabela de referência:
+
+| Original | Categoria | Substituição correta |
+|:--|:--|:--|
+| "Lipotrine" | nome próprio (marca) | "Melt Drops" |
+| "gummy" / "gummies" | formato genérico | "drop" / "drops" |
+| "the gummy formula" | formato genérico | "the drop formula" / "the sublingual drop formula" |
+| "one gummy" | dose | "a few drops" (cuidado com check (b) — drops não conta unidade) |
+| "gummy GLP-1" | formato como adjetivo | "the GLP-1 from the drops" |
+| "Dr Oz's gummies" | formato com possessivo | "Dr Oz's drops" |
+
+Mesma regra vale pra `bottle` / `jar` (check (d)) — são categorias de embalagem, não nomes próprios.
+
+### Convenção de marcação por cor
+
+A marcação `[old] <new>` no Google Docs usa **highlight (backgroundColor)**, NÃO cor de texto (foregroundColor). Texto permanece preto.
+
+- `[old]` → `backgroundColor: "#FF0000"` (highlight vermelho), `foregroundColor: "#000000"` (texto preto)
+- `<new>` → `backgroundColor: "#00FF00"` (highlight verde), `foregroundColor: "#000000"` (texto preto)
+
+Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por instância.
+
+### Workflow de adaptação
+
+0. **Varredura editorial de base (SEMPRE antes de qualquer troca).** Ler o doc em `format: "json"` e procurar inconsistências estruturais que o usuário NÃO quer ter que apontar. Em especial:
+   - **Soft line breaks (Shift+Enter) travestidos de parágrafos.** Visualmente parecem iguais aos parágrafos reais por causa do `spaceAbove`/`spaceBelow` do template, mas estruturalmente um bloco inteiro pode estar dentro de um único parágrafo gigante com vários soft breaks. No JSON aparecem como `textRun` com `\v` (vertical tab) ou como `lineBreak` dentro de `paragraph.elements[]`, em vez de `paragraph` separados. No export `.txt`, esses blocos aparecem com linhas grudadas (sem `\n\n` entre frases) enquanto o resto do doc tem linha em branco entre cada frase — comparação de densidade entre blocos pega isso rápido.
+   - **Regra:** se detectado, propor a correção (converter soft breaks em parágrafos reais) ANTES de iniciar a adaptação. Não dá pra rodar troca em cima de estrutura inconsistente.
+1. **Ler o briefing.** Identificar: (i) o que sai, o que entra; (ii) se é só nome de produto, só formato, ou os dois; (iii) se o doc tem marcação explícita (`[old] <new>` ou cor) ou se o usuário tá pedindo só pela fala.
+2. **Ler o doc** via MCP `google-docs` (`readDocument`).
+3. **Mapear todas as ocorrências** do termo antigo. Pra cada uma, decidir se é troca direta, se cai em alguma das armadilhas (a)–(e), ou se é bloco de referência (não mexer).
+4. **Apresentar o plano antes de aplicar** quando há mais de uma troca ou quando alguma armadilha foi detectada. Listar cada substituição planejada com contexto curto, e perguntar OK antes de executar.
+5. **Aplicar** via `findAndReplace` (substituições simples) ou edições mais finas quando o contexto exigir.
+6. **Avisar no final** se algum check disparou — ex.: "o build-up ataca `drops` em L412 e você tá trocando pra `drops`; sugiro reescrever esse trecho do build-up".
 
 ## Sub-função: `arrumar_paragrafos(doc_id)`
 
@@ -111,6 +223,8 @@ Quando o pedido for ambíguo (ex: "padroniza só os títulos e tira travessão")
 **Atenção:** se o usuário pedir só "aplica os títulos" mas o doc não tiver título marcado visualmente como tal, perguntar qual linha é o título antes de aplicar.
 
 ## Sub-função: `aplicar_placeholders(doc_id)`
+
+**Escopo:** **exclusivo da padronização.** O objetivo é transformar o doc na **copy matriz** daquela estrutura (oferta/upsell/downsell) — versão limpa e reutilizável onde nome do produto e nome do expert ficam como placeholders, prontos pra serem preenchidos quando essa matriz for adaptada pra uma nova oferta. NÃO usar essa sub-função em adaptação (na adaptação o fluxo é inverso: a matriz já tem os placeholders, e a adaptação preenche com os nomes reais).
 
 **O que faz:** substitui nomes próprios por placeholders padronizados.
 
