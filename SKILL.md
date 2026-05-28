@@ -48,6 +48,8 @@ Não tem menu por enquanto — apenas uma função (`padronização`). O usuári
 | "aplica os títulos", "título tá errado", "cabeçalho fora do padrão" | `aplicar_titulos` |
 | "bota os placeholders", "troca o nome do produto", "anonimiza nome" | `aplicar_placeholders` |
 | "body tá com cor estranha", "texto não tá preto" | `body_preto` |
+| "deixa o formato genérico", "tira capsule/drops/bottle", "põe unit/supply" | `formato_generico` |
+| "renomeia o doc", "aplica a nomenclatura", "põe o nome no padrão", "nome do arquivo" | `aplicar_nomenclatura` |
 
 Quando o pedido for ambíguo (ex: "padroniza só os títulos e tira travessão"), executar APENAS as sub-funções nomeadas, NÃO a padronização completa.
 
@@ -165,20 +167,36 @@ Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por inst
 
 ## Sub-função: `arrumar_paragrafos(doc_id)`
 
-**O que faz:** insere parágrafo vazio entre cada parágrafo de conteúdo, removendo o auto-spacing (`spaceAbove`/`spaceBelow`).
+**O que faz:** garante que cada **frase** seja seu próprio parágrafo, com **linha em branco real depois** de cada uma. Também garante que toda frase termine em ponto final (insere os que faltarem). Remove o auto-spacing (`spaceAbove`/`spaceBelow`) ao final.
 
-**Por quê:** template do Google Docs aplica `spaceAbove: 12pt` `spaceBelow: 12pt` em cada parágrafo. Isso cria gap visual automático que confunde com "linha em branco", mas tecnicamente não tem parágrafo vazio entre as frases. Usuário quer parágrafo vazio REAL + zero auto-spacing — assim 1 Enter = pula linha sem gap, 2 Enters = blank paragraph real.
+**Princípio (CRÍTICO):** **o doc-fonte é só fonte de TEXTO, não de estrutura.** Aplicar SEMPRE a regra de zero — não preservar a estrutura do doc-fonte só porque "parece OK". Doc fonte costuma ter parágrafos com várias frases coladas (ex: `"Isso é apenas $24 por unidade comparado ao preço de varejo de $189. É quase como se você estivesse comprando um e ganhando outro de graça."` é UM parágrafo, deveria ser DOIS com blank entre). Não inferir uniformidade nem reusar a estrutura do source.
+
+**Regra do ponto final:** toda frase termina com `.` (ou `?` / `!`) e tem **linha em branco** depois dela. A separação é **por frase**, não por bloco. Aplicar em todo lugar do doc inclusive **dentro de callouts de oferta** (PROTOCOLO AVANÇADO + linhas de preço + explicação) — cada frase do callout vira seu próprio parágrafo + blank.
+
+**Frases sem ponto final:** se uma frase termina sem `.` / `?` / `!`, **inserir o ponto final** antes de aplicar a quebra. Não pular essa checagem — várias frases passam batidas porque o `arrumar_paragrafos` foca em quebrar, não em corrigir terminação.
+
+**Por quê:** template do Google Docs aplica `spaceAbove: 12pt` `spaceBelow: 12pt` em cada parágrafo. Isso cria gap visual automático que confunde com "linha em branco", mas tecnicamente não tem parágrafo vazio entre as frases. Usuário quer parágrafo vazio REAL + zero auto-spacing + frase por linha — assim 1 Enter = pula linha sem gap, 2 Enters = blank paragraph real, cada frase fica isolada visualmente.
 
 **Protocolo:**
 
-1. `readDocument` com formato JSON
-2. Iterar `body.content[]` e coletar `startIndex` de cada parágrafo onde:
-   - Tem `paragraph.elements[]` com `textRun` (parágrafo de texto)
-   - NÃO tem `inlineObjectElement` (imagem)
-   - NÃO é o PRIMEIRO parágrafo de conteúdo do doc
-   - NÃO é precedido por outro parágrafo que contém SÓ `\n` (ou seja, já tem vazio antes — pular)
-3. Para cada `startIndex` coletado, em **ordem decrescente** (do maior pro menor), chamar `insertText` com `text: "\n"`. Ordem decrescente é crítica — inserir em índices baixos primeiro invalida os índices altos coletados.
-4. Aplicar `applyParagraphStyle` no range `1` → `(docLength - 1)` com `style: { spaceAbove: 0, spaceBelow: 0 }`. Pra descobrir `docLength`, ler o JSON OU tentar `endIndex` grande (ex: 30000) e ajustar pelo erro retornado.
+1. **Inserir pontos finais faltantes.** Varrer o doc em busca de parágrafos de conteúdo cujo último char (antes do `\n`) não é `.` / `?` / `!` / `:`. Para cada um, identificar uma frase âncora única e fazer `findAndReplace` adicionando o ponto. Headings e callouts curtos podem terminar sem ponto — usar julgamento.
+2. **Proteger abreviações** (a regra do ponto-blank quebra essas senão):
+   - Listar todas as abreviações no doc: `Dr.`, `Dra.`, `Sr.`, `Sra.`, `Prof.`, `etc.`, `ex.`, `vs.`, `nº` etc. Procurar `Capitalizada + . + espaço + palavra` no doc.
+   - Para cada abreviação encontrada (ex: `Dra. Rebecca`), fazer `findAndReplace` `"Dra. "` → `"Dra__DOT__ "` (placeholder único). Repetir para todas as abreviações.
+   - **Não confundir com nº decimal** — em PT-BR `$16,50` usa vírgula (não period), então sem risco. `1.500` (period como milhar) não dispara o pattern `. ` porque não tem espaço depois do ponto.
+3. **Aplicar a quebra de frase.** `findAndReplace` `". "` → `".\n\n"`. Isso transforma "Frase1. Frase2." em "Frase1.\n\nFrase2." — `\n\n` cria um parágrafo break com blank entre. Fazer o mesmo pra `"? "` → `"?\n\n"` e `"! "` → `"!\n\n"`.
+4. **Restaurar abreviações.** `findAndReplace` `"Dra__DOT__ "` → `"Dra. "` etc, revertendo o passo 2.
+5. **Inserir blanks em quebras de heading.** `readDocument` JSON. Iterar `body.content[]` e coletar `startIndex` de cada heading paragraph onde o paragraph anterior OU posterior NÃO seja blank (`\n` puro ou ` \n`). Para cada gap coletado, em **ordem decrescente**, chamar `insertText` com `text: "\n"`. Ordem decrescente é crítica — inserir em índices baixos primeiro invalida os índices altos.
+6. **Zerar spacing.** Aplicar `applyParagraphStyle` no range `1` → `(docLength - 1)` com `style: { spaceAbove: 0, spaceBelow: 0 }`.
+
+**Verificar CADA tipo de quebra separadamente — não inferir uniformidade.** O erro clássico é amostrar só o corpo, ver que já tem blank entre as frases, e concluir que o doc inteiro está coberto. Não está: docs frequentemente têm blank entre parágrafos de corpo MAS vêm com **título/seção colados sem blank** (ex: `UPSELL 1` direto em cima de `Parte 1 - ...`, sem linha vazia entre eles). Checar explicitamente toda transição:
+
+- **título → seção** (TITLE → HEADING_1)
+- **seção → corpo** (HEADING → NORMAL_TEXT)
+- **corpo → seção** (NORMAL_TEXT → HEADING)
+- **corpo → corpo** (NORMAL_TEXT → NORMAL_TEXT)
+
+Regra: **toda quebra de título/subtítulo precisa de linha em branco real antes E depois.** Coletar os `startIndex` que faltam blank em cada tipo de transição (não só corpo→corpo) antes de inserir. Verificação parcial (só uma amostra do corpo) já causou entrega com headings colados.
 
 **Armadilhas a evitar:**
 
@@ -186,6 +204,11 @@ Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por inst
 - ❌ NÃO usar `findAndReplace " " → ""` (vai apagar TODOS os espaços do doc).
 - ❌ NÃO inserir em ordem crescente — invalida índices.
 - ❌ NÃO usar caractere NBSP entre parágrafos — parágrafo vazio com `\n` puro funciona, é mais limpo.
+- ❌ NÃO assumir que o doc inteiro segue o padrão do corpo — headings costumam vir colados mesmo quando o corpo já tem blanks.
+- ❌ NÃO preservar a estrutura do doc-fonte. O source é só fonte de TEXTO. Estrutura vem do padrão da skill (frase por parágrafo + blank).
+- ❌ NÃO rodar `". " → ".\n\n"` sem proteger abreviações primeiro — `Dra. Rebecca` viraria `Dra.\n\nRebecca` (parágrafo quebrado no meio do nome).
+- ❌ NÃO esquecer de aplicar a regra do ponto-blank DENTRO dos callouts de oferta (PROTOCOLO AVANÇADO + linhas de preço + explicação) — cada frase do callout também é uma frase.
+- ❌ NÃO confiar APENAS no blanket `". " → ".\n\n"` — ele só pega frases que estão DENTRO do mesmo parágrafo (separadas por espaço). Não pega parágrafos **back-to-back** onde cada um já é frase isolada terminada em `.\n` mas sem blank entre eles (ex: 3 sentenças "Se você é alguém que..." consecutivas, cada em seu parágrafo, sem blank entre). Esses casos exigem `insertText` no índice da fronteira (`endIndex` do parágrafo que termina com ponto). Checar SEMPRE depois do blanket: iterar `body.content[]` e identificar pares onde `paragraph[i].content.endswith('.\n')` (ou `?\n`/`!\n`) AND `paragraph[i+1]` não é blank — esses são os gaps faltantes.
 
 ## Sub-função: `limpar_travessoes(doc_id)`
 
@@ -228,10 +251,11 @@ Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por inst
 
 **O que faz:** substitui nomes próprios por placeholders padronizados.
 
-**Apenas DOIS placeholders existem:**
+**Existem TRÊS placeholders oficiais:**
 
-- `<Product Name>` — produto da oferta principal (front). Ex: "Coco Burn" → `<Product Name>`.
-- `<Expert Name>` — especialista/médico narrador do doc. Ex: "Dr. Matthews" → `<Expert Name>` (e o gênero do título — Dr./Dra. — entra no placeholder se relevante; o padrão é só `<Expert Name>`, o usuário ajusta o tratamento se precisar).
+- `<Product Name>` — **produto da oferta principal (front)** quando aparece no **corpo do texto**. Ex: "Max Brain"/"Neo Vital" no body → `<Product Name>`. Usado no corpo porque é o produto mencionado dentro da narração/copy.
+- `<Expert Name>` — especialista/médico **narrador do doc**. Ex: "Dr. Matthews" → `<Expert Name>` (o gênero do título — Dr./Dra. — entra no placeholder se relevante; o padrão é só `<Expert Name>`).
+- `<Offer Name>` — **nome da oferta do front** quando aparece no **nome do arquivo**. Ex: "Primal Brain 1.0" no filename → `<Offer Name>`. Distinto do `<Product Name>`: `<Offer Name>` é o slot do filename (nomenclatura), `<Product Name>` é o slot do corpo. São tokens separados, mesmo quando referem ao mesmo produto real. **Atenção à grafia**: `<Offer Name>` com **espaço** (NÃO `<Offer_Name>` com underline).
 
 **NÃO viram placeholder (ficam intactos no doc):**
 
@@ -246,7 +270,54 @@ Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por inst
 2. `findAndReplace` com `findText: "<nome real>"` e `replaceText: "<Placeholder>"` pra cada ocorrência.
 3. Aplicar bold via `applyTextStyle` com `target: { textToFind: "<Placeholder>" }` e `style: { bold: true }` (precisa fazer múltiplas vezes se o placeholder aparece várias vezes — usar `matchInstance: N` no target).
 
-**Atenção:** o `<Expert Name>:` no início de uma fala (indicando que o expert é o orador) **sempre** deve ficar em **vermelho** (`foregroundColor: "#FF0000"`) e **bold**. Só essa instância específica — outras menções ao expert no meio do texto ficam só bold preto.
+**Atenção — marcação de "spoken person" (orador):** a marcação **negrito + cor** no nome seguido de `:` indica quem está falando aquele trecho da VSL. Cada personagem que fala tem sua própria cor de orador (todos em negrito):
+
+- **Expert da oferta** → `<Expert Name>:` sempre em **negrito + vermelho** (`bold: true`, `foregroundColor: "#FF0000"`).
+- **Outros personagens** (avatar secundário, "segundo doutor", etc.) → também marcação de orador em **negrito**, mas com **cores próprias a definir** (fora do escopo da padronização atual — por enquanto NÃO mexer neles).
+
+**A marcação do orador NÃO é única no doc — reaparece a cada retomada de fala depois de uma quebra de fluxo.** "Quebra de fluxo" = qualquer coisa que interrompe a narração contínua e exige re-ancorar o leitor em quem fala:
+
+- Headline / subheadline
+- `[Anexo - Depoimento]`
+- `[Anexo - Prova Midiática]`
+- blocos análogos que cortam a narração
+
+Ex.: num doc com 5 headlines/subheadlines, o `<Expert Name>:` aparece marcado 5 vezes (uma por retomada). Numa sequência de diálogo `<Expert Name>: ... / <Avatar Transformado>: ... / <Expert Name>: ...`, cada retomada do expert é marcada vermelho+bold; o outro personagem fica com a cor dele.
+
+**Marcar SÓ o rótulo de orador, nunca o nome citado dentro da copy.** A marcação vermelho+bold é exclusiva do `<Expert Name>:` que abre uma fala (com os dois-pontos). Quando o nome do expert aparece **dentro do texto falado** (ex.: *"Olá, sou o Dr. Yuto Ohsumi, e antes de tudo..."*), essa citação faz parte da copy narrada e **NÃO recebe marcação nenhuma** — fica como texto normal do body. Não confundir os dois: o gatilho da marcação é o nome funcionando como rótulo de quem fala (seguido de `:`), não a presença do nome.
+
+**Escopo atual:** padronizar SÓ o spoken person do **expert** (negrito + `#FF0000`, todas as retomadas). Os outros oradores ficam intactos até a cor deles ser definida.
+
+**Protocolo de aplicação:** localizar todas as ocorrências de `<Expert Name>:` (ou o nome real do expert + `:`) que iniciam uma fala. Para cada uma, aplicar `applyTextStyle` com `style: { bold: true, foregroundColor: "#FF0000" }` no range exato do `Nome:` (incluindo os dois-pontos, sem incluir o texto da fala que vem depois).
+
+**Quando o doc-fonte NÃO tem nenhum rótulo de spoken person (caso comum em Upsell 2):** o doc traz a narração direto, sem o `Nome:` no início de cada bloco de fala. Nesse caso é preciso **INSERIR** o rótulo `<Expert Name>: ` em cada retomada após quebra de fluxo (uma vez por seção, ou onde houver headline/`[Anexo - Depoimento]`/`[Anexo - Prova Midiática]` quebrando a narração). Não pular essa inserção achando que é "opcional" — o spoken person é parte fixa do padrão.
+
+**Placement quando a seção tem offer callout** (PROTOCOLO AVANÇADO / OTIMIZAÇÃO ESTENDIDA / PROTEÇÃO MÁXIMA + linha de preço tipo "2 unidades de Gut Brain Shield por apenas $48"): o offer callout é **bloco visual** (não voiced). O `<Expert Name>:` vai no **primeiro parágrafo de narração explicativa** depois do callout (ex: "Isso é apenas $24 por unidade comparado ao preço de varejo de $189."), NÃO antes do PROTOCOLO. Critério: o rótulo abre a fala falada do expert; callouts visuais ficam fora.
+
+**Como inserir via MCP:** usar `findAndReplace` com a frase âncora única no início da fala. Ex: findText = `"Isso é apenas $24 por unidade comparado"` → replaceText = `"<Expert Name>: Isso é apenas $24 por unidade comparado"`. Repetir pra cada retomada. Depois aplicar bold + `#FF0000` em todas as instâncias de `<Expert Name>:` via `applyTextStyle` com `textToFind: "<Expert Name>:"` + `matchInstance: i` (1 a N).
+
+## Sub-função: `formato_generico(doc_id)`
+
+**Escopo:** **exclusivo da padronização de materiais pós-VSL do front** (upsell, downsell e afins). NÃO se aplica à VSL principal do front.
+
+**O que faz:** troca as palavras de formato específico do produto (capsule, drops, gummy, powder, bottle, jar...) por termos **genéricos**, pra que a copy matriz sirva a qualquer oferta sem precisar re-adaptar quando o formato muda.
+
+**Por quê:** a VSL do front trata o formato de forma específica (e a *adaptação* lida com troca de formato via armadilhas (a)–(e) e bottle↔jar). Mas os materiais pós-VSL são matriz reutilizável — fixar formato específico neles geraria retrabalho a cada nova oferta. Então generaliza-se.
+
+**Mapa fixo de 3 termos** (separados por função pra não soar robótico):
+
+| Função na copy | Específico (NÃO usar na matriz pós-VSL) | Genérico (usar) |
+|:--|:--|:--|
+| **Dose / ingestão** (quanto se toma) | "one capsule a day", "take 2 drops", "every single capsule" | **`dose`** → "your daily dose", "take your dose", "one dose a day" |
+| **Contagem de embalagem** (quanto se compra/conta) | "per bottle", "6 bottles", "Six Bottle Kit" | **`unit`** → "per unit", "6 units", "6-unit kit" |
+| **Estoque / período coberto** | "6-month supply", "stock up" | **`supply`** → "6-month supply", "your supply" (já genérico; geralmente fica como está) |
+
+**Regras de não-ambiguidade:**
+- **Nunca usar `unit` pra dose** ("one unit a day" soa de máquina). Dose é sempre `dose` — é contável e neutro, então resolve também a gramática quebrada (cf. armadilha (b)): "one dose a day", "your daily dose" funcionam em qualquer formato.
+- **`unit`** cobre bottle E jar (substitui a coerência bottle↔jar da armadilha (d), que só vale na VSL/adaptação).
+- **`supply`** mede período, não conflita com `unit` nem `dose`.
+
+**Protocolo:** localizar menções de formato/dose/embalagem no doc, classificar cada uma nas 3 funções acima, e substituir pelo termo genérico correspondente via `findAndReplace` (ou edição fina quando a frase exigir ajuste de concordância). Apresentar as trocas antes de aplicar quando houver risco de mudar sentido.
 
 ## Sub-função: `body_preto(doc_id)`
 
@@ -261,15 +332,66 @@ Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por inst
    - Geralmente o título começa em índice 1. Pular o título — começar do índice depois dele (ex: 10 se o título tem 9 chars + `\n`). Ler JSON pra saber exatamente.
    - Pular paragrafos com cor explícita custom (ex: bloco "URGENTE" com cor vermelha do template — pode manter intacto se usuário não pediu pra mexer).
 
+## Sub-função: `aplicar_nomenclatura(doc_id)`
+
+**O que faz:** renomeia o arquivo no Drive seguindo a nomenclatura fixa da operação. Vale tanto pra renomear o doc original quanto pra nomear a cópia/entrega na pasta de destino.
+
+**Estrutura base:**
+
+```
+SETOR - Etapa do Funil (nomenclatura do funil) - [Nome do produto vendido nessa etapa] - Nome da Oferta do front (Idioma)
+```
+
+| Campo | O que é | Exemplo |
+|:--|:--|:--|
+| **SETOR** | área dona do doc | `COPY` |
+| **Etapa do Funil (nomenclatura do funil)** | a etapa + o número do funil entre parênteses, colado | `Upsell 2 (8.0)` |
+| **Nome do produto vendido nessa etapa** | só quando a etapa vende produto DIFERENTE do front | `Gut Brain Shield` |
+| **Nome da Oferta do front (Idioma)** | nome da oferta principal + idioma entre parênteses | `Primal Brain 1.0 (PT-BR)` |
+
+O `(X.0)` é o número do funil e fica **sempre colado na etapa**. Ex.: funil 7.0 → `Upsell 1 (7.0)`; funil 8.0 → `Upsell 1 (8.0)`.
+
+**Campo "Nome do produto vendido nessa etapa" — quando aparece:**
+
+- **Upsell 1** → NÃO tem (vende mais do próprio front). A nomenclatura pula direto pro nome da oferta do front.
+  ```
+  COPY - Upsell 1 (8.0) - <Offer Name> (PT-BR)
+  ```
+  (exemplo com oferta real: `COPY - Upsell 1 (8.0) - Primal Brain 1.0 (PT-BR)`)
+- **Upsell 2** → TEM (vende um produto diferente do front).
+  ```
+  COPY - Upsell 2 (8.0) - Gut Brain Shield - <Offer Name> (PT-BR)
+  ```
+  (exemplo com oferta real: `COPY - Upsell 2 (8.0) - Gut Brain Shield - Primal Brain 1.0 (PT-BR)`)
+
+**Atenção:** quando o doc é a **matriz default** (sem oferta específica atribuída), o slot "Nome da Oferta do front" fica como o placeholder literal **`<Offer Name>`** (com espaço, não underline). Quando o doc é uma adaptação pra uma oferta real, substitui pelo nome dela (ex: "Primal Brain 1.0"). O slot do produto do Upsell 2 (Gut Brain Shield / Firm Boost) é **sempre literal** — não vira placeholder, mesmo na matriz default, porque é fixo por nicho.
+
+**Produto do Upsell 2 por nicho (regra fixa):**
+
+| Nicho da oferta | Produto do Upsell 2 |
+|:--|:--|
+| **Memory loss** | **Gut Brain Shield** |
+| **Weight loss** | **Firm Boost** |
+
+Isso **raramente muda**. Quando mudar, é exceção e o usuário sinaliza no briefing — só nesse caso usar produto diferente do da tabela.
+
+**Protocolo:**
+
+1. Identificar os campos: SETOR (default `COPY`), etapa + nº do funil, nicho (pra resolver o produto do Upsell 2), nome da oferta do front, idioma.
+2. Renomear via `renameFile` com o nome montado.
+3. Se faltar algum campo (nº do funil, nicho, nome do front), perguntar — NÃO chutar.
+
 ## Função orquestradora: `padronizar_completo(doc_id)`
 
 Chama em sequência:
 
 1. `arrumar_paragrafos` (primeiro, porque insere `\n` e o JSON muda depois)
 2. `limpar_travessoes`
-3. `aplicar_titulos`
-4. `aplicar_placeholders` (perguntar produto + expert antes)
-5. `body_preto`
+3. `formato_generico` (só em material pós-VSL do front — pular se for VSL principal)
+4. `aplicar_titulos`
+5. `aplicar_placeholders` (perguntar produto + expert antes; marcar spoken person do expert)
+6. `body_preto`
+7. `aplicar_nomenclatura` (renomear o arquivo final no padrão)
 
 Cada chamada pode invalidar índices coletados por chamadas anteriores. Refazer `readDocument` JSON entre etapas se necessário.
 
