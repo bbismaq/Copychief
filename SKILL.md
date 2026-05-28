@@ -26,6 +26,7 @@ Ao ser invocada, **sua primeira e única mensagem deve ser exatamente:**
 
 > 1. Adaptação de copy
 > 2. Padronização de copy
+> 3. Construção de copy do zero
 
 Não diga mais nada, não explique cada opção, não adicione subtítulos. Espere o usuário escolher.
 
@@ -33,6 +34,7 @@ Não diga mais nada, não explique cada opção, não adicione subtítulos. Espe
 
 - **Se escolher `1` (Adaptação de copy):** responder exatamente `Qual o briefing da adaptação a ser feita?` e esperar. Seguir o fluxo de adaptação descrito na seção `## Função: Adaptação de copy` abaixo (convenções de marcação `[old] <new>` / cor + armadilhas (a)–(e)). Se o briefing pedir algo fora do que está descrito, executar o pedido e propor salvar o aprendizado na própria skill ao final.
 - **Se escolher `2` (Padronização de copy):** responder exatamente `O que iremos padronizar?` e esperar. A partir daí, seguir o fluxo de padronização descrito abaixo (gatilhos de linguagem natural → sub-função).
+- **Se escolher `3` (Construção de copy do zero):** responder exatamente `Qual o briefing da construção? (doc de destino + espinha de referência + oferta + produto + expert + precificação)` e esperar. Seguir o protocolo de **ordem fixa** descrito em `## Função: Construção de copy do zero`. Nunca pular passo — cada um previne um erro de padronização conhecido.
 
 ## Fluxo de invocação
 
@@ -164,6 +166,64 @@ Aplicar via `applyTextStyle` combinando os dois campos numa chamada só por inst
 4. **Apresentar o plano antes de aplicar** quando há mais de uma troca ou quando alguma armadilha foi detectada. Listar cada substituição planejada com contexto curto, e perguntar OK antes de executar.
 5. **Aplicar** via `findAndReplace` (substituições simples) ou edições mais finas quando o contexto exigir.
 6. **Avisar no final** se algum check disparou — ex.: "o build-up ataca `drops` em L412 e você tá trocando pra `drops`; sugiro reescrever esse trecho do build-up".
+
+## Função: Construção de copy do zero
+
+Construção do zero = pegar a **espinha invisível** de uma copy existente (ex.: Upsell 2 do Funil 8.0 — Banana Fit) e construir uma nova copy completa em um doc destino, adaptada pra outro produto/oferta/nicho, **preservando a arquitetura argumentativa do template** e aplicando integralmente os protocolos de padronização da operação.
+
+Diferente de Adaptação (que faz trocas pontuais num doc existente), aqui você está **criando conteúdo novo** a partir de uma estrutura de referência. É a tarefa mais arriscada do Copychief porque envolve múltiplas etapas encadeadas — qualquer salto de ordem produz erros visuais que só aparecem no doc renderizado e custam rounds de correção pro usuário.
+
+### Briefing esperado
+
+Ao receber o briefing, o usuário fornece:
+- **Doc destino** (link/ID do Google Docs onde a copy será construída — pode estar vazio ou ter conteúdo a ser substituído)
+- **Doc de espinha** (link/ID do template de referência — ex.: copy padrão do Upsell 2 do Funil 8.0)
+- **Oferta** (ex.: Rock Booster 1.0)
+- **Produto principal / front** (ex.: Rock Booster)
+- **Produto do upsell** ou variável principal de adaptação (ex.: Testosterone Shield)
+- **Expert / narrador** (ex.: Dr. Jonathan)
+- **Precificação aplicável** (qual catálogo do Funil — A/B/C por front)
+- **Personagens a criar** (caso emblemático, autoridade externa) e qualquer outro parâmetro específico do tipo de upsell
+
+Se faltar algum item, perguntar ANTES de começar. Não chutar nomes/números.
+
+### Protocolo de ordem fixa (NUNCA pular passo, NUNCA mudar a ordem)
+
+Cada passo abaixo previne um modo de falha real e documentado. Os números entre colchetes referenciam a memória correspondente do usuário pra contexto.
+
+**1. Extrair a espinha invisível do doc de referência.** Ler o template e mapear: macro-arquitetura (blocos), padrões retóricos centrais (moves repetidos), personagens-âncora, anchors de preço, escassez, garantia, projeção temporal. Esse mapa é a base da adaptação — antes de escrever uma linha do doc novo, apresentar a espinha pro usuário e pedir confirmação dos pontos de adaptação (vilão, caso emblemático, autoridade, anchor externo).
+
+**2. Compor o texto novo como markdown plano.** Sem `#` headings, sem listas markdown (`-`, `1.`), sem bold/italic inline. Apenas parágrafos de texto separados por `\n\n`. Cada frase em parágrafo próprio terminando em `.` / `?` / `!`. Rótulos de spoken person (`Dr. Jonathan:`) ficam inline no texto (ex.: `"Dr. Jonathan: Parabéns mais uma vez..."`) — a coloração será aplicada depois.
+
+**3. Inserir conteúdo no doc destino via `insertText` literal, NÃO via `replaceDocumentWithMarkdown`.** Razão: `replaceDocumentWithMarkdown` **colapsa `\n\n` em um único paragraph break**, removendo os blanks reais — exatamente o erro de hoje. Fluxo correto:
+   - Ler doc destino em JSON pra obter `docLength` atual.
+   - `deleteRange` de `1` até `docLength - 1` pra limpar o conteúdo existente.
+   - `insertText` no índice 1 com o texto completo (todos os `\n\n` literais preservam blanks).
+
+**4. Ler `docLength` REAL via `readDocument` JSON.** Procurar o último `endIndex` no `body.content`. Nunca chutar.
+
+**5. Zerar `spaceAbove` e `spaceBelow` no doc INTEIRO via `applyParagraphStyle` no range `1` até `docLength - 1`.** NUNCA usar range parcial — região não-coberta vira double-blank visual quando combinada com blank real ([[feedback_copychief_spacing_must_cover_full_doc]]).
+
+**6. Aplicar TITLE no primeiro parágrafo** (ex.: `"UPSELL 2"`): `applyParagraphStyle` com `namedStyleType: "TITLE", alignment: "CENTER"` + `applyTextStyle` com `fontFamily: "Arial", fontSize: 20, foregroundColor: "#4a86e8", bold: true`.
+
+**7. Aplicar HEADING_1 nos títulos de seção e nas headlines** (ex.: `"URGENTE: VOCÊ GANHOU 1 PRESENTE!"`, `"Assista ao vídeo abaixo para resgatá-lo!"`, `"Parte 1 - Igual para todos"`, etc): `applyParagraphStyle` com `namedStyleType: "HEADING_1", alignment: "CENTER"` + `applyTextStyle` com `fontFamily: "Arial", fontSize: 14, foregroundColor: "#000000", bold: true`.
+
+**8. Aplicar marcação de spoken person no rótulo `"<Expert Name>:"`** em cada instância (cada retomada após quebra de fluxo — headline, callout de pacote, anexo). Usar `applyTextStyle` com `target: { textToFind: "<Expert Name>:", matchInstance: N }` e `style: { bold: true, foregroundColor: "#FF0000" }`.
+
+**9. PASSO OBRIGATÓRIO E CRÍTICO — Zerar herança no conteúdo da fala.** Para CADA paragraph que contém o rótulo `<Expert Name>:`, identificar o range `(endIndex_do_rótulo → endIndex_do_parágrafo)` (o conteúdo da fala após os `:`) e aplicar `applyTextStyle` com `style: { bold: false, foregroundColor: "#000000" }`. **NÃO confiar em herança/default.** Razão: o textRun adjacente ao rótulo vermelho aparece no JSON como `foregroundColor: {}` vazio, que parece "limpo" mas pode renderizar vermelho ([[feedback_copychief_foregroundColor_empty_trap]]).
+
+**10. Limpar textStyle dos blank paragraphs adjacentes a ranges estilizados.** Se algum `insertText("\n")` foi feito adjacente a um range red/bold (ex.: blank antes do rótulo), o blank herda o estilo. Varrer o JSON depois de aplicar marcações: todo paragraph cujo content === `"\n"` e cujo textStyle tem `foregroundColor` ou `bold` herdado deve ser resetado via `applyTextStyle` com `style: { bold: false, foregroundColor: "#000000" }` ([[feedback_copychief_blank_inherits_style]]).
+
+**11. Renomear o arquivo** seguindo a nomenclatura padrão da operação (ver sub-função `aplicar_nomenclatura`).
+
+**12. Rodar `validar_padronizacao(doc_id)`** (sub-função descrita abaixo). Se algum check falhar, corrigir antes de entregar. **Não declarar pronto sem essa validação rodar limpa.**
+
+### Armadilhas adicionais (além das do protocolo)
+
+- **Tradução literal de phrases idiomáticas do template.** Ex.: `"ter o corpo que sempre sonhou"` (Banana Fit / emagrecimento) traduzido cegamente vira `"ter o homem que sempre sonhou ser"` (ED) — gramaticalmente quebrado. Adaptar verbo conforme o que o lead "tem" vs "é/se torna".
+- **Aspas e travessões em construções de auto-questionamento.** Em copies do template, frases como `"se questionar 'e se?' — e saber que..."` usam aspas em torno da auto-pergunta + travessão pra separar. Ao adaptar e remover o travessão (regra do `limpar_travessoes`), **manter as aspas** pra preservar a estrutura gramatical, OU reescrever a frase pra não depender da auto-citação.
+- **Personagens emblemáticos** (caso central recuperado 3x) precisam ser **um único personagem nomeado** consistente ao longo da copy. Não inventar 2 personagens diferentes pro mesmo papel.
+- **Números do estudo** (N inicial, dualidade %, N intermediário, tripla métrica em %) precisam ser **internamente consistentes** — o N inicial não pode ser menor que o N intermediário, as % têm que somar/fechar com a narrativa.
 
 ## Sub-função: `arrumar_paragrafos(doc_id)`
 
@@ -381,6 +441,69 @@ Isso **raramente muda**. Quando mudar, é exceção e o usuário sinaliza no bri
 2. Renomear via `renameFile` com o nome montado.
 3. Se faltar algum campo (nº do funil, nicho, nome do front), perguntar — NÃO chutar.
 
+## Sub-função: `validar_padronizacao(doc_id)`
+
+**O que faz:** roda 7 checks no JSON do doc pra garantir que NENHUM erro de padronização visual escape pro usuário. **Chamada obrigatória antes de declarar QUALQUER tarefa de copychief concluída** (construção do zero, padronização completa, ou adaptação que tenha mexido em estilos).
+
+**Por quê existe:** a sessão de validação histórica deste skill mostrou que verificações JSON ad-hoc deixam passar erros visuais (cor herdada, double-blank por spacing residual, blank com bold/red herdado). Essa sub-função consolida os checks em um único ponto de saída obrigatório, evitando que cada tarefa precise inventar seu próprio fluxo de verificação.
+
+**Protocolo:**
+
+1. **Ler o doc em JSON via `readDocument` format=json.** Se truncar, ler arquivo `.txt` salvo em chunks.
+
+2. **Rodar 7 checks via subagent (`general-purpose`) — pedir o resultado em JSON estrito:**
+
+   - **A. Cor anômala em foregroundColor.** Qualquer textRun com `foregroundColor` que NÃO seja:
+     - Preto puro (`#000000` ou todos zero ou ausência)
+     - Vermelho puro (`rgbColor.red === 1`, sem green/blue) — só permitido em `<Expert Name>:` rótulo
+     - Azul TITLE (~`red: 0.29, green: 0.52, blue: 0.91`) — só permitido no paragraph TITLE
+
+   - **B. Conteúdo da fala explícito preto.** Para cada paragraph que contém `<Expert Name>:`, validar que o textRun seguinte (a fala) tem `foregroundColor.color.rgbColor` **explicitamente** definido como preto (todos zero ou ausência de `red`). `foregroundColor: {}` vazio NÃO conta como preto — é herança ambígua. Se algum textRun de fala tiver `foregroundColor: {}` em vez de preto explícito, flagar.
+
+   - **C. Spacing zero em TODOS os parágrafos.** Qualquer paragraph cujo `paragraphStyle.spaceAbove.magnitude > 0` ou `paragraphStyle.spaceBelow.magnitude > 0` é violação.
+
+   - **D. Sem double-blanks.** Dois paragraphs consecutivos cujo content === `"\n"`.
+
+   - **E. Blanks limpos.** Qualquer paragraph cujo content === `"\n"` E cujo textStyle tem `foregroundColor` setado (não vazio) OU `bold: true` (exceto quando o blank está dentro de heading/title como esperado).
+
+   - **F. backgroundColor estranho.** Qualquer textRun com `backgroundColor` diferente de `#FFFFFF` ou ausente — exceto highlights manuais conhecidos (perguntar ao usuário antes de remover um highlight, NUNCA assumir que é erro).
+
+   - **G. Heading styles corretos.** Paragraph com `namedStyleType: "TITLE"` tem textRun com `fontSize: 20pt, foregroundColor: #4a86e8, bold: true, alignment: CENTER`. Paragraphs com `namedStyleType: "HEADING_1"` têm textRun com `fontSize: 14pt, foregroundColor: #000000, bold: true, alignment: CENTER`.
+
+3. **Se algum check falhar:** aplicar fix automaticamente (resetar style do blank, aplicar #000000 explícito, zerar spacing onde sobrou, etc) e re-rodar a validação até passar limpa.
+
+4. **Só declarar tarefa concluída pro usuário depois da validação passar limpa.** Reportar brevemente os checks que passaram pra dar visibilidade.
+
+**Quando rodar:**
+
+- Sempre ao fim de `Construção de copy do zero` (passo 12 do protocolo).
+- Sempre ao fim de `padronizar_completo`.
+- Após qualquer Adaptação que tenha aplicado novos estilos de cor/bold/heading.
+
+**Quando NÃO precisa rodar:**
+
+- Adaptação simples de texto via `findAndReplace` que não toca em estilos.
+- Sub-funções isoladas que não mudam formatação (ex.: `limpar_travessoes` puro).
+
+## Sub-função (opcional): `validar_visual_pdf(doc_id)`
+
+**O que faz:** exporta o doc como PDF via `downloadFile` com `exportMimeType: "application/pdf"`, abre o PDF como imagem e varre visualmente o render — pra pegar problemas que o JSON não revela (ex.: cor herdada renderizada, gap visual estranho, fonte caída).
+
+**Quando rodar:** **sob demanda** (custo de tokens significativo — PDF de ~30 páginas pode custar 30-50k tokens só de input). Indicações pra rodar:
+- Doc novo construído do zero (primeira entrega — risco máximo).
+- Doc grande (>20 páginas).
+- Quando `validar_padronizacao` passou limpa mas o usuário ainda relatou problema visual.
+- Quando o usuário pedir explicitamente "checa visualmente".
+
+**Protocolo:**
+
+1. `mcp__google-docs__downloadFile` com `fileId: doc_id`, `exportMimeType: "application/pdf"`, `savePath: temp_path`.
+2. Ler o PDF como imagem usando a tool `Read` com `pages: "1-N"` (até 20 páginas por chamada).
+3. Varrer visualmente: alguma cor inesperada? gap duplo? heading deformado? backgroundColor estranho?
+4. Reportar qualquer anomalia ao usuário antes de declarar pronto. Se nada visual, declarar.
+
+**Custo:** alto (tokens de input). Skip por padrão. Use quando o ROI compensa (risco alto, doc novo, doc grande).
+
 ## Função orquestradora: `padronizar_completo(doc_id)`
 
 Chama em sequência:
@@ -392,6 +515,7 @@ Chama em sequência:
 5. `aplicar_placeholders` (perguntar produto + expert antes; marcar spoken person do expert)
 6. `body_preto`
 7. `aplicar_nomenclatura` (renomear o arquivo final no padrão)
+8. **`validar_padronizacao` (obrigatório — não declarar concluído sem passar limpa)**
 
 Cada chamada pode invalidar índices coletados por chamadas anteriores. Refazer `readDocument` JSON entre etapas se necessário.
 
@@ -408,6 +532,11 @@ Cada chamada pode invalidar índices coletados por chamadas anteriores. Refazer 
 3. ❌ `findAndReplace` com NBSP (U+00A0) sozinho — perigoso por confusão com espaço normal.
 4. ❌ Inserir `\n` em ordem CRESCENTE de índice — invalida índices subsequentes.
 5. ❌ Aplicar `applyParagraphStyle` global com `endIndex` maior que `docLength` — erra. Ler JSON pra descobrir `docLength` real OU testar e ajustar pelo erro.
+6. ❌ Usar `replaceDocumentWithMarkdown` pra inserir conteúdo na Construção do zero — colapsa `\n\n` em paragraph break único, removendo blanks reais. Use `deleteRange` + `insertText` literal.
+7. ❌ Zerar spacing em range parcial (`1` até número chutado) — região não-coberta vira double-blank visual. Sempre `1` até `docLength - 1`.
+8. ❌ Confiar em `foregroundColor: {}` vazio como "preto default" no JSON — pode renderizar vermelho visual por herança. Após colorir rótulo, SEMPRE aplicar `#000000 + bold:false` explícito no conteúdo da fala.
+9. ❌ Inserir `\n` adjacente a range estilizado e deixar o blank com estilo herdado — o blank fica vermelho/bold mesmo sendo vazio. Limpar textStyle dos blanks adjacentes a rótulos coloridos.
+10. ❌ Declarar tarefa concluída sem rodar `validar_padronizacao` — verificações ad-hoc deixam passar erro visual. Validação é gate obrigatório de saída.
 
 ## Sobre o usuário
 
