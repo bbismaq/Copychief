@@ -284,7 +284,8 @@ Após o usuário escolher `3` e responder `O que iremos padronizar?`, o usuário
 | "aplica os títulos", "título tá errado", "cabeçalho fora do padrão" | `aplicar_titulos` |
 | "bota os placeholders", "troca o nome do produto", "anonimiza nome" | `aplicar_placeholders` |
 | "body tá com cor estranha", "texto não tá preto" | `body_preto` |
-| "deixa o formato genérico", "tira capsule/drops/bottle", "põe unit/supply" | `formato_generico` |
+| "deixa o formato genérico", "põe unit/supply" (pós-VSL — upsell/downsell) | `formato_generico` |
+| "põe o formato como placeholder", "troca bottle/jar/frasco por placeholder" (oferta principal / VSL) | `aplicar_placeholders` (placeholder `<Product Format>`) |
 | "renomeia o doc", "aplica a nomenclatura", "põe o nome no padrão", "nome do arquivo" | `aplicar_nomenclatura` |
 
 Quando o pedido for ambíguo (ex.: "padroniza só os títulos e tira travessão"), executar APENAS as sub-funções nomeadas, NÃO a padronização completa.
@@ -375,11 +376,12 @@ Regra: **toda quebra de título/subtítulo precisa de linha em branco real antes
 
 **O que faz:** substitui nomes próprios por placeholders padronizados.
 
-**Existem TRÊS placeholders oficiais:**
+**Existem QUATRO placeholders oficiais:**
 
 - `<Product Name>` — **produto da oferta principal (front)** quando aparece no **corpo do texto**. Ex: "Max Brain"/"Neo Vital" no body → `<Product Name>`. Usado no corpo porque é o produto mencionado dentro da narração/copy.
 - `<Expert Name>` — especialista/médico **narrador do doc**. Ex: "Dr. Matthews" → `<Expert Name>` (o gênero do título — Dr./Dra. — entra no placeholder se relevante; o padrão é só `<Expert Name>`).
 - `<Offer Name>` — **nome da oferta do front** quando aparece no **nome do arquivo**. Ex: "Primal Brain 1.0" no filename → `<Offer Name>`. Distinto do `<Product Name>`: `<Offer Name>` é o slot do filename (nomenclatura), `<Product Name>` é o slot do corpo. São tokens separados, mesmo quando referem ao mesmo produto real. **Atenção à grafia**: `<Offer Name>` com **espaço** (NÃO `<Offer_Name>` com underline).
+- `<Product Format>` — **formato/embalagem do produto na copy da OFERTA PRINCIPAL (VSL principal)**. Toda menção a formato específico (bottle, jar, frasco, capsule, drops, gummy, powder...) no corpo da oferta principal vira `<Product Format>`. **Distinção crítica com `formato_generico`:** na oferta principal o formato é trabalhado com **especificidade** (a copy explora o formato), então NÃO se generaliza pra dose/unit/supply — usa-se um placeholder pra templatizar, e cada oferta preenche o formato dela. A nomenclatura universal (`dose`/`unit`/`supply` da `formato_generico`) é **exclusiva do pós-VSL** (upsell/downsell). Regra: **oferta principal → `<Product Format>`; pós-VSL → termos universais**. Não recebe bold por padrão (diferente do `<Product Name>`), a menos que o usuário peça.
 
 **NÃO viram placeholder (ficam intactos no doc):**
 
@@ -422,7 +424,7 @@ Ex.: num doc com 5 headlines/subheadlines, o `<Expert Name>:` aparece marcado 5 
 
 ## Sub-função: `formato_generico(doc_id)`
 
-**Escopo:** **exclusivo da padronização de materiais pós-VSL do front** (upsell, downsell e afins). NÃO se aplica à VSL principal do front.
+**Escopo:** **exclusivo da padronização de materiais pós-VSL do front** (upsell, downsell e afins). NÃO se aplica à VSL principal do front. **Na oferta principal / VSL principal o formato NÃO é generalizado — vira o placeholder `<Product Format>`** (ver `aplicar_placeholders`), porque ali o formato é trabalhado com especificidade. Só no pós-VSL se adota a nomenclatura universal abaixo.
 
 **O que faz:** troca as palavras de formato específico do produto (capsule, drops, gummy, powder, bottle, jar...) por termos **genéricos**, pra que a copy matriz sirva a qualquer oferta sem precisar re-adaptar quando o formato muda.
 
