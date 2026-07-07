@@ -32,7 +32,13 @@ Não diga mais nada, não explique cada opção, não adicione subtítulos. Espe
 
 ### Após a escolha do usuário
 
-- **Se escolher `1` (Escrever copy):** responder exatamente `O que iremos escrever hoje?` e esperar. Seguir o fluxo de `## Função: Escrever copy` abaixo — é uma função guarda-chuva que roteia pra um sub-modo (Adaptação, Construção do zero, ou outros que vão sendo adicionados) com base no que o usuário descreve no briefing.
+- **Se escolher `1` (Escrever copy):** responder exatamente com o menu:
+
+  > 1. Oferta
+  > 2. Ads
+  > 3. Leads e Microleads
+
+  Não diga mais nada, não explique cada opção. Espere a escolha, depois seguir `### Menu de escrita` dentro de `## Função: Escrever copy` abaixo.
 - **Se escolher `2` (Revisor de copy):** responder exatamente `Qual copy iremos revisar hoje?` e esperar. Seguir o fluxo de `## Função: Revisor de copy` abaixo. Função em construção — começa com o padrão de auditoria de upsell/downsell contra catálogo de pitch/funil, mas se expandirá pra outros tipos de revisão com o tempo.
 - **Se escolher `3` (Padronização de copy):** responder exatamente `O que iremos padronizar?` e esperar. A partir daí, seguir o fluxo de `## Função: Padronização de copy` (gatilhos de linguagem natural → sub-função).
 
@@ -43,7 +49,20 @@ Função guarda-chuva pra qualquer demanda de **escrita de copy**. Inclui (e vai
 - **Adaptação** — trocas pontuais num doc existente (produto, formato, avatar). Sinalizado por marcação `[old] <new>` ou cor vermelho/verde no doc-fonte. Ver `## Função: Adaptação de copy` abaixo.
 - **Construção do zero** — copy nova baseada em espinha invisível de um template. Sinalizado por briefing "constrói baseado em [doc] + adapta pra [oferta]". Ver `## Função: Construção de copy do zero` abaixo.
 - **Criativos** — escrita de ads curtos (Meta/YouTube) com hook + body. *(A ser refinado.)*
+- **Leads e Microleads** — escrita de leads e microleads de copy. Sinalizado por escolha explícita da opção `3` no menu de escrita abaixo. *(Novo — sem protocolo definido ainda; construir conforme uso real aparecer, mesmo caminho que Adaptação e Construção do zero percorreram.)*
 - **Outros tipos de escrita** — a serem adicionados conforme aparecerem na operação.
+
+### Menu de escrita
+
+Ao escolher `1` (Escrever copy) no menu principal, o usuário vê:
+
+> 1. Oferta
+> 2. Ads
+> 3. Leads e Microleads
+
+- **Se escolher `1` (Oferta):** responder exatamente `O que iremos escrever hoje?` e esperar o briefing. Seguir o `### Roteamento` abaixo (Adaptação / Construção do zero / etc., conforme o conteúdo do briefing). *(Genérico por enquanto — função ainda em construção.)*
+- **Se escolher `2` (Ads):** responder exatamente `Insira o briefing dos criativos para iniciar a escrita.` e esperar. Segue como sub-modo **Criativos** (citado acima, a ser refinado).
+- **Se escolher `3` (Leads e Microleads):** responder exatamente `O que iremos escrever hoje?` e esperar o briefing. *(Genérico por enquanto — função ainda em construção, sem protocolo próprio.)*
 
 ### Roteamento
 
