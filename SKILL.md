@@ -272,12 +272,13 @@ Depois de coletar, **resumir o entendido numa frase e esperar confirmação do u
 
 ### 2. Repertório — fontes de referência (substitui o anexo manual)
 
-**Fontes ativas hoje (usar sempre):**
+**As DUAS fontes abaixo são obrigatórias em TODA demanda. Não pular, não reduzir a uma amostra de 4-5 ads — esse foi um erro recorrente (tratar a pasta de externos como opcional). O mapeamento de repertório é etapa de trabalho de verdade, não formalidade.**
 
-1. **Swipe validado do Brainmaq pessoal** — docs na raiz de `Ads externos escalados/<pasta do nicho>/` e docs de swipe curados (ex.: `Swipe Weight Loss BB`, `Ads Claude_Weight Loss`). São curados pelo usuário — maior confiança de qualidade.
-2. **Criativos externos transcritos** — pasta `Ads externos escalados/<nicho>/` no Brainmaq (Weight Loss, Memory Loss, ED, e outras que forem adicionadas). Já vêm em texto (Original EN + Tradução PT-BR) — usar pra variedade de ângulo/gancho, não pra copiar estrutura 1:1 de um concorrente específico.
+1. **Criativos externos escalados transcritos** (fonte-base de repertório) — pasta `Swipe de ADS Validados > Ads externos escalados > <nicho>` (Weight Loss / Memory Loss / ED). São **dezenas** de ads que JÁ ESCALARAM, em texto (EN + PT-BR). Já estão transcritos localmente também (scratchpad `all_transcripts` = WL, `memo_transcripts` = ML, `ed_transcripts` = ED) — dá pra minerar de lá, mais barato.
+   - **Método de mineração obrigatório (varrer TODOS, não amostrar):** extrair o **gancho de abertura** (primeira(s) fala(s), ~150 chars) de **cada** ad do nicho e **agrupar em ÂNGULOS recorrentes**. Exemplos de ângulos reais já vistos em WL: celebridade (Oprah/Kelly Clarkson/Adele/Reba/Dolly), anti-Ozempic/Mounjaro, bravata "me processa"/aposta, vazou/viral no Facebook, autoridade Dr. Oz ("paguei caro, agora é grátis"), cônjuge cético convertido, "você fez errado / versão falsa", incidente dramático, antes-depois, idade 70+. Esse mapa de ângulos (com noção de quais se repetem mais) é a matéria-prima das big ideas.
+2. **Swipe curado do Brainmaq** — docs na raiz de `Swipe de ADS Validados` (ex.: `Swipe Weight Loss BB`; `Ads Claude_Weight Loss`, que traz **contagem de vendas por hook** — sinal forte do que converteu). Camada curada pelo usuário; confirma padrão de body e de **CTA** (CTA indireto ao expert, valor + escassez — ver passo 5). Conteúdo mora em TABELAS do Google Docs; ler via `listDocumentTables`/`getTableStructure` (leitura de texto corrido volta vazia).
 
-Buscar nessas duas fontes pelo nicho/oferta do briefing. Ler uma amostra representativa (não é preciso ler tudo) pra mapear padrão de hook, body e principalmente **CTA** (os CTAs seguem convenção fixa da operação — ver passo 5).
+Buscar pelo **nicho** do briefing. **Se o mecanismo do briefing não for o herói do repertório** (ex.: briefing pede "pink salt" mas os ads escalados são de "gelatina"; o pink salt pode até aparecer só como vilão descartado): **transferir os ÂNGULOS comprovados pro mecanismo da oferta** — os ângulos são agnósticos de mecanismo; o mecanismo é sempre o do briefing. Sinalizar isso ao usuário.
 
 **Fontes fora de escopo por decisão do usuário (2026-07-07) — não usar por enquanto:**
 
@@ -289,9 +290,9 @@ Buscar nessas duas fontes pelo nicho/oferta do briefing. Ler uma amostra represe
 - Ferramenta de mineração de conteúdo orgânico (a conectar).
 
 **Sinal de "o que está funcionando":**
-- Se o usuário apontar no briefing quais ads performaram melhor, usar isso como prioridade de inspiração (sem ignorar os demais).
-- Se não apontar, **perguntar** — não adivinhar pelo nome do arquivo (não há convenção de nomenclatura que indique escala nas fontes ativas hoje).
-- Extrair da amostra: estrutura de body, tom, e principalmente o padrão de CTA (indireto ao expert, valor + escassez).
+- O `Ads Claude_<nicho>` traz **contagem de vendas por hook** — quando disponível, é o sinal mais forte; priorizar os hooks/ângulos com mais vendas.
+- Se o usuário apontar no briefing quais ads performaram melhor, usar como prioridade (sem ignorar os demais).
+- Extrair da mineração completa: os ângulos que MAIS se repetem entre os ads escalados (repetição = aposta validada), estrutura de body, tom, e o padrão de CTA (indireto ao expert, valor + escassez).
 
 ### 3. Big ideias (gate obrigatório antes de escrever)
 
