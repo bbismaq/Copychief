@@ -48,7 +48,7 @@ Função guarda-chuva pra qualquer demanda de **escrita de copy**. Inclui (e vai
 
 - **Adaptação** — trocas pontuais num doc existente (produto, formato, avatar). Sinalizado por marcação `[old] <new>` ou cor vermelho/verde no doc-fonte. Ver `## Função: Adaptação de copy` abaixo.
 - **Construção do zero** — copy nova baseada em espinha invisível de um template. Sinalizado por briefing "constrói baseado em [doc] + adapta pra [oferta]". Ver `## Função: Construção de copy do zero` abaixo.
-- **Criativos** — escrita de ads curtos (Meta/YouTube) com hook + body. *(A ser refinado.)*
+- **Criativos** — escrita de ads curtos (Meta/YouTube) com hook + body. Sinalizado por escolha explícita da opção `2` no menu de escrita, ou por briefing mencionando "criativo"/"ad"/"hook". Ver `## Função: Criativos de copy` abaixo.
 - **Leads e Microleads** — escrita de leads e microleads de copy. Sinalizado por escolha explícita da opção `3` no menu de escrita abaixo. *(Novo — sem protocolo definido ainda; construir conforme uso real aparecer, mesmo caminho que Adaptação e Construção do zero percorreram.)*
 - **Outros tipos de escrita** — a serem adicionados conforme aparecerem na operação.
 
@@ -250,6 +250,130 @@ Cada passo abaixo previne um modo de falha real e documentado. Os números entre
 - **Aspas e travessões em construções de auto-questionamento.** Em copies do template, frases como `"se questionar 'e se?' — e saber que..."` usam aspas em torno da auto-pergunta + travessão pra separar. Ao adaptar e remover o travessão (regra do `limpar_travessoes`), **manter as aspas** pra preservar a estrutura gramatical, OU reescrever a frase pra não depender da auto-citação.
 - **Personagens emblemáticos** (caso central recuperado 3x) precisam ser **um único personagem nomeado** consistente ao longo da copy. Não inventar 2 personagens diferentes pro mesmo papel.
 - **Números do estudo** (N inicial, dualidade %, N intermediário, tripla métrica em %) precisam ser **internamente consistentes** — o N inicial não pode ser menor que o N intermediário, as % têm que somar/fechar com a narrativa.
+
+## Função: Criativos de copy
+
+Escrita de ads curtos (Meta/YouTube) — hooks + body + CTAs — pra alimentar campanha de tráfego que leva o lead até a VSL. Protocolo baseado no prompt-matriz que o usuário já usava manualmente no Claude Chat, adaptado pra usar o Brainmaq como repertório em vez de anexo manual de arquivo.
+
+**Persona ao escrever:** copywriter sênior, especialista no nicho da oferta, com histórico de escalar campanhas de 9 dígitos naquele nicho. Escrever com essa autoridade.
+
+### 1. Briefing obrigatório (perguntar tudo de uma vez, o que faltar)
+
+Antes de qualquer coisa, garantir que os campos abaixo estão preenchidos. Se algum faltar, perguntar todos de uma vez (checklist), não um por um:
+
+- **Nicho** (ex.: emagrecimento, memória, libido).
+- **Oferta** (produto/oferta específica).
+- **Plataforma** — Meta ou YouTube (afeta o ritmo do hook: feed exige interrupção mais brusca).
+- **Gancho principal da oferta** — a frase/recurso mais forte e de mais curiosidade da copy (ex.: "suco", "tônico", "receita de X segundos"). Variações desse gancho ficam a critério criativo do Copychief, mas a ideia-força vem do briefing.
+- **Número de hooks por criativo** (cada criativo tem 1 body + N hooks).
+- **Ads de referência "mais escalados"** (opcional) — se o usuário não apontar, perguntar antes de escrever; ver passo 2 sobre como cruzar isso com dados reais quando disponível.
+
+Depois de coletar, **resumir o entendido numa frase e esperar confirmação do usuário antes de seguir** — não pular direto pras big ideias.
+
+### 2. Repertório — fontes de referência (substitui o anexo manual)
+
+**Fontes ativas hoje (usar sempre):**
+
+1. **Swipe validado do Brainmaq pessoal** — docs na raiz de `Ads externos escalados/<pasta do nicho>/` e docs de swipe curados (ex.: `Swipe Weight Loss BB`, `Ads Claude_Weight Loss`). São curados pelo usuário — maior confiança de qualidade.
+2. **Criativos externos transcritos** — pasta `Ads externos escalados/<nicho>/` no Brainmaq (Weight Loss, Memory Loss, ED, e outras que forem adicionadas). Já vêm em texto (Original EN + Tradução PT-BR) — usar pra variedade de ângulo/gancho, não pra copiar estrutura 1:1 de um concorrente específico.
+
+Buscar nessas duas fontes pelo nicho/oferta do briefing. Ler uma amostra representativa (não é preciso ler tudo) pra mapear padrão de hook, body e principalmente **CTA** (os CTAs seguem convenção fixa da operação — ver passo 5).
+
+**Fontes fora de escopo por decisão do usuário (2026-07-07) — não usar por enquanto:**
+
+- **Drive corporativo ("Escalados")** — não é uma pasta única, é convenção de nome espalhada por pasta de projeto (`01. Escalados`, `Hooks escalados - <PRODUTO>`, etc.). Decisão explícita: não consultar essa fonte nesta fase. Só retomar se o usuário pedir.
+
+**Fontes futuras (ainda não conectadas — não tentar usar até o usuário confirmar que estão prontas):**
+
+- ~200 copies clássicas atemporais de copywriters consagrados, sendo adicionadas ao Brainmaq.
+- Ferramenta de mineração de conteúdo orgânico (a conectar).
+
+**Sinal de "o que está funcionando":**
+- Se o usuário apontar no briefing quais ads performaram melhor, usar isso como prioridade de inspiração (sem ignorar os demais).
+- Se não apontar, **perguntar** — não adivinhar pelo nome do arquivo (não há convenção de nomenclatura que indique escala nas fontes ativas hoje).
+- Extrair da amostra: estrutura de body, tom, e principalmente o padrão de CTA (indireto ao expert, valor + escassez).
+
+### 3. Big ideias (gate obrigatório antes de escrever)
+
+**Nunca escrever o criativo direto.** Sempre apresentar **6 big ideias** — a ideia central de cada criativo possível — e esperar o usuário escolher uma antes de prosseguir pra escrita completa daquele criativo.
+
+**Recomendação obrigatória junto com as 6:** sempre indicar **pelo menos 3 das 6** como preferidas (com uma frase curta do porquê de cada uma), baseado no repertório levantado no passo 2. A decisão final é sempre do usuário — a recomendação é só pra agilizar a escolha, não substitui o "martelo" dele.
+
+**Repetição do gate ao longo do lote (regra do usuário, 2026-07-08):** o gate de 6 opções só roda **uma vez por lote**, não a cada corpo. Depois que o usuário aprova o conjunto de big ideias a usar (que pode ter menos itens que o número de corpos pedidos — ex.: 3 big ideias aprovadas pra 5 corpos), seguir direto pra escrita nos corpos restantes, **sem reabrir o gate**. Quando sobrar corpo sem big idea nova disponível, escolher por conta própria qual das big ideias já aprovadas reaproveitar naquele corpo — não é preciso perguntar de novo, é julgamento do Copychief. Só reabrir o gate se o usuário pedir explicitamente uma big idea nova fora do conjunto já aprovado.
+
+### 4. Escrita do criativo
+
+**Formato de saída fixo — nessa ordem:**
+
+1. **Avatar** — logo abaixo da identificação da big ideia escolhida, sempre no topo do criativo (ex.: "Avatar: mulher, 66 anos, terceira"). Nunca deixar essa informação enterrada no meio ou só implícita no corpo.
+2. Hooks
+3. Corpo
+4. Lettering UGC (ver abaixo — vai no **final** do criativo, não colado nos hooks)
+
+Depois da big ideia escolhida, escrever:
+
+- **1 body + N hooks entregues** (N definido no briefing) — **mas sempre escrever 8 ganchos primeiro, e selecionar os N melhores dentre eles** para compor o criativo final. Isso vale independente de quanto o briefing pedir (se pedir 4, escrever 8 e escolher 4; se pedir 6, escrever 8 e escolher 6). Não pular a etapa de escrever os 8 achando que economiza esforço — é assim que se garante variação de ângulo antes de convergir no melhor.
+- **Hook aplica o princípio P.I.G. (Punch In The Gut, do livro "Great Leads")** — a primeira frase precisa ser um soco no estômago, impacto suficiente pra parar o scroll. Isso vale ainda mais forte pra Meta (feed) do que YouTube.
+- **Liberdade criativa nas variações do gancho principal** (ex.: virar "suco", "tônico", "receita de X segundos") — desde que a ideia-força do gancho do briefing se mantenha reconhecível.
+- **Avatar é sempre terceiro — nunca o expert da VSL.** Escrever pensando em quem entrega o ad, não em quem "assina" a autoridade da oferta.
+- **2 CTAs por criativo**, seguindo o padrão de CTA identificado no passo 2: menção indireta ao expert (não citar o nome diretamente, é o avatar terceiro falando), agregando valor e escassez, empurrando o lead pra VSL.
+- **Duração alvo: 1:30 a 03:30 — usar a faixa de verdade, não convergir pro mínimo.** Criativo maior tende a não performar SE for enrolado, mas isso não é desculpa pra entregar sempre perto do piso da faixa. Explorar profundidade real (mais camadas de prova, mais escalada emocional, diálogo, detalhe sensorial) até render um corpo que ocupe a faixa média/alta (perto de 2:30–3:00) quando a história comportar. Corpo raso que só bate o mínimo de caracteres é sinal de preguiça, não de eficiência.
+- **Proxy de conversão caracteres → duração, calibrado com dado real (2026-07-08):** usar **14,5 caracteres sem espaço por segundo** de fala. Calibrado a partir de 134 transcrições reais em inglês (idioma de veiculação final do vídeo) já processadas no Brainmaq — não é mais chute. Fórmula: `duração_segundos = caracteres_sem_espaço / 14.5`.
+- **No final do criativo (depois do corpo), sugerir até 5 ideias de lettering UGC** (texto na tela pra reforçar curiosidade e travar o scroll) — não é obrigatório em todo criativo, usar julgamento sobre quando o gancho se beneficia de reforço visual. Não colar essa lista embaixo dos hooks — sempre no fechamento.
+- **Nunca usar `—`** (mesma regra global de `limpar_travessoes` — aplicar já na escrita, não só corrigir depois).
+
+### 5. Entrega
+
+- Ao final de cada criativo aprovado: relatório com **contagem de caracteres sem espaço** e **previsão de duração** (baseada na proxy do passo 4).
+- **Formato padrão de entrega (decisão do usuário, 2026-07-08, vale até segunda ordem): Artifact publicado (HTML), não `.txt` solto.** Escrever o HTML num arquivo e publicar via ferramenta de Artifact — é assim que o usuário revisa o lote sem precisar baixar nada.
+- **Estrutura visual a reaproveitar** (validada e aprovada pelo usuário — não reinventar do zero a cada lote):
+  - Tema escuro, base em tom terroso/âmbar (não usar o clichê "creme + terracota" nem "preto puro + neon"). Serve como neutro proposital, ligado ao mecanismo da oferta quando fizer sentido (ex.: mel → tons de mel/âmbar); adaptar a paleta ao tema da oferta em vez de repetir sempre a mesma cor literal.
+  - Tipografia: serif pra headings/big ideia (tom narrativo, combina com depoimento/VSL), sans-serif pro corpo, monoespaçada pros números do relatório (`tabular-nums`).
+  - Barra de estatísticas no topo (corpos, hooks entregues, hooks escritos, duração média).
+  - Nav de âncora pra pular entre os N criativos.
+  - Por criativo: número + big idea + avatar em destaque logo abaixo → lista dos **8 hooks escritos com os selecionados marcados visualmente** (ex.: "usado") → corpo em prosa larga o suficiente pra leitura confortável (~65ch) → lettering UGC como chips → rodapé com caracteres/duração daquele criativo.
+  - Sem exagero de animação/hero — é um documento de trabalho pra aprovação rápida, não uma landing page.
+- Se o usuário pedir explicitamente um `.txt` além do Artifact (ex.: pra arquivar localmente ou importar em outro lugar), gerar normalmente — o Artifact não substitui isso quando pedido, só é o padrão quando não especificado.
+- **Relatório bilíngue obrigatório (regra do usuário, 2026-07-08):** todo lote de criativos entregues deve ter os ads em **PT-BR e em inglês**, traduzidos ao final da escrita. Estrutura fixa em duas partes dentro do mesmo Artifact:
+  - **Parte 1** — todos os criativos em PT-BR (hooks + corpo + lettering), como já era.
+  - **Parte 2** — os mesmos criativos traduzidos pro inglês, na mesma estrutura (hooks + corpo + lettering), mantendo o tom de direct response americano (frases curtas, sem travessão, natural pro mercado dos EUA — não é tradução literal palavra por palavra).
+  - Tradução acontece **depois** que os criativos em PT-BR estiverem aprovados/finalizados, não antes — evita retrabalho de tradução em cima de corpo que ainda vai mudar.
+
+### 6. Entrega em Google Doc — padrão da operação (regra do usuário, 2026-07-09)
+
+> ⚠️ **Escopo:** esta subseção vale EXCLUSIVAMENTE para a entrega da função **Criativos de copy**. Não se aplica às funções Padronização, Adaptação ou Revisor.
+
+Além do Artifact (revisão rápida), o lote também é entregue como **Google Doc nativo** arquivado no Drive, no padrão visual fixo da operação (tabelas, cabeçalho com logo "GF Digital", sombreamento azul `#4a86e8`/`#4bacc6`, negrito e caixa alta específicos). O Artifact é pra aprovar; o Doc é a entrega oficial.
+
+**Método — copiar o modelo, NUNCA construir do zero:**
+- Duplicar (`copyFile`) o **doc-modelo nativo** da operação — ele já traz toda a formatação (tabelas, logo, cores, estilos). Doc-modelo de referência atual: `1trx6y7aKxEbKdMTVF0t9ZCxKSbv8haubaWbhpP3H2Ho` (na pasta `1xrd_-Pa90lbcMjES-ha5L3_NMr9x-WUW`). Deixar o modelo intocado.
+- Trocar só o CONTEÚDO, preferindo **`findAndReplace`** (herda a formatação do texto substituído — negrito/caixa alta/cor ficam sozinhos). Inserção por índice (`insertText`) só quando `findAndReplace` não resolve (ex.: dois hooks de texto idêntico).
+- **Armadilhas técnicas (não repetir erros já cometidos):**
+  - NUNCA `replaceDocumentWithMarkdown` (destrói a formatação).
+  - NUNCA tentar deletar o range INTEIRO de uma célula de tabela — a marca de parágrafo final é protegida e a API dá erro. Pra reescrever corpo, use `findAndReplace` ou inserção-only.
+  - Inserções por índice: sempre em **ordem decrescente de índice, uma por chamada** (nunca em paralelo), senão uma inserção invalida o índice das outras.
+  - `getTableStructure`/`readDocument` **colapsam parágrafos vazios** na saída de texto — não dá pra "ver" as linhas em branco por ali. Verificar pelo **crescimento exato de índice** da célula (+N caracteres = N parágrafos vazios) e conferir que nenhuma palavra foi partida.
+
+**Nomenclatura do arquivo:** `[Nº sequencial da demanda]. COPY - [Nº de criativos] Criativos - [Nome da oferta] - [Plataforma] - Bruno Bismaq`. O número inicial é **sequencial por pasta de entrega** (olhar o último doc da pasta e incrementar — não é fixo em "1"). Ex.: `2. COPY - 20 Criativos - Primal Brain 2.0 - Meta - Bruno Bismaq`.
+
+**Cabeçalho:** logo (vem do modelo) + tabela `Data` / `Projeto` / `Plataforma`. Data = data de execução (DD/MM/AAAA); Projeto = nome da oferta; Plataforma = veiculação.
+
+**Numeração dos criativos = ID GLOBAL sequencial e contínuo** (não reinicia a cada demanda). Continuar do último ID já usado na operação (ex.: demanda anterior terminou em 334 → esta começa em 335). Se não souber o último ID, perguntar ao usuário ou checar o doc de entrega mais recente. Título de cada criativo: `N - CRIATIVO XXX` (N = posição na demanda; XXX = ID global). Na seção EN, `CRIATIVO` → `CREATIVE`.
+
+**Bloco-título (célula azul), por criativo, nesta ordem de linhas:**
+- `N - CRIATIVO XXX`
+- `Perfil: <avatar>` — e, na linha seguinte, o **link de referência** (Pinterest/TikTok/etc.); se não houver, `[link a inserir]` (o usuário completa manualmente).
+- `Lettering UGC (Hook): <um dos letterings sugeridos>` — escolher UM; se não couber, `não se aplica`.
+- `Big Idea: <tag da big idea>` — ou `não se aplica` quando a demanda não amarrou tag.
+- **Regra de negrito (crítica):** só o **rótulo** é negrito (`Perfil:`, `Lettering UGC (Hook):`, `Big Idea:`); o **valor** depois dos dois-pontos NÃO é negrito. (Erro já cometido: deixar o valor todo em negrito — não fazer.)
+
+**Hooks:** tabela HOOK/COPY. Entram no Doc **apenas os hooks selecionados** (os 8 escritos ficam só no Artifact). Código de cada hook: `BB [ID global].[nº do hook] [sigla da oferta]` — ex.: `BB 335.1 PB2`. A sigla é a abreviação da oferta (gerar das iniciais e avisar qual usou; ex.: Primal Brain 2.0 → PB2). O marcador de hook usado segue o padrão do modelo.
+
+**Corpo (PT):** cada parágrafo separado por **linha em branco** (parágrafo vazio real entre eles).
+
+**Seção EN:** `TRADUÇÃO (EN)` em parágrafos soltos (fora de tabela). Os corpos EN **NÃO** levam linha em branco entre parágrafos — segue o modelo. Rótulos em inglês (`Profile:`, etc.), `CREATIVE` no título.
+
+**Pasta de destino:** a definir na organização de Drive (nível 2, ainda não fechado). Por ora, a pasta que o usuário indicar.
 
 ## Função: Revisor de copy
 
