@@ -358,7 +358,7 @@ Além do Artifact (revisão rápida), o lote também é entregue como **Google D
 
 **Cabeçalho:** logo (vem do modelo) + tabela `Data` / `Projeto` / `Plataforma`. Data = data de execução (DD/MM/AAAA); Projeto = nome da oferta; Plataforma = veiculação.
 
-**Numeração dos criativos = ID GLOBAL sequencial e contínuo** (não reinicia a cada demanda). Continuar do último ID já usado na operação (ex.: demanda anterior terminou em 334 → esta começa em 335). Se não souber o último ID, perguntar ao usuário ou checar o doc de entrega mais recente. Título de cada criativo: `N - CRIATIVO XXX` (N = posição na demanda; XXX = ID global). Na seção EN, `CRIATIVO` → `CREATIVE`.
+**Numeração dos criativos = ID GLOBAL sequencial e contínuo** (não reinicia a cada demanda; conta todos os criativos já produzidos na operação). Pra achar o último ID usado: navegar a pasta central `1.0 CRIATIVOS` (id `1NOlUecQxboyIpO7F3WfrgEWG_jUN1OFV`) → pasta do **ano mais recente** → pasta do **mês mais recente** → abrir o doc de maior número (`N. COPY ...`) e ler o maior ID de criativo dele; a nova demanda continua a sequência a partir daí. Título de cada criativo: `N - CRIATIVO XXX` (N = posição na demanda; XXX = ID global). Na seção EN, `CRIATIVO` → `CREATIVE`.
 
 **Bloco-título (célula azul), por criativo, nesta ordem de linhas:**
 - `N - CRIATIVO XXX`
@@ -373,7 +373,7 @@ Além do Artifact (revisão rápida), o lote também é entregue como **Google D
 
 **Seção EN:** `TRADUÇÃO (EN)` em parágrafos soltos (fora de tabela). Os corpos EN **NÃO** levam linha em branco entre parágrafos — segue o modelo. Rótulos em inglês (`Profile:`, etc.), `CREATIVE` no título.
 
-**Pasta de destino:** a definir na organização de Drive (nível 2, ainda não fechado). Por ora, a pasta que o usuário indicar.
+**Pasta de destino (estrutura de entrega, já existente):** `1.0 CRIATIVOS` (id `1NOlUecQxboyIpO7F3WfrgEWG_jUN1OFV`) → `[ano]` → `[NN. Mês]` (ex.: `2026` → `07. Julho`). Salvar o Doc da demanda na pasta do **mês corrente** (criar a pasta do mês se ainda não existir). Um Doc por demanda, com o nº sequencial no nome. É a mesma estrutura de onde se lê o último ID global (acima). A subpasta `Swipe de ADS Validados`, dentro de `1.0 CRIATIVOS`, é repertório — não é destino de entrega.
 
 ## Função: Revisor de copy
 
