@@ -294,14 +294,16 @@ Buscar pelo **nicho** do briefing. **Se o mecanismo do briefing não for o heró
 - Se o usuário apontar no briefing quais ads performaram melhor, usar como prioridade (sem ignorar os demais).
 - Extrair da mineração completa: os ângulos que MAIS se repetem entre os ads escalados (repetição = aposta validada), estrutura de body, tom, e o padrão de CTA (indireto ao expert, valor + escassez).
 
-### 3. Big ideias (decisão AUTÔNOMA do Copychief — NÃO é gate de aprovação)
+### 3. Big ideias (GATE de aprovação do usuário — revertido pra regra original, 2026-07-10)
 
-**Regra central da skill (usuário, 2026-07-09): com um briefing básico, o Copychief entrega TUDO 100%, sem parar pra perguntar.** As big ideias são **escolha do Copychief, não do usuário**. NÃO apresentar lista de 6 opções, NÃO perguntar "qual você prefere", NÃO esperar "o martelo". Decidir as big ideias e seguir direto pra escrita e entrega completa.
+**Regra revertida (usuário, 2026-07-10): a escolha de big ideias volta a ser do usuário, não do Copychief.** A mudança de 2026-07-09 que tornava essa etapa autônoma ("sem parar pra perguntar") foi desfeita especificamente pra esse passo — o resto do fluxo (avatar, lettering, seleção de hook entre os 8 escritos, escrita e entrega) continua autônomo, só a big ideia parou aqui.
 
-- Basear a escolha no **repertório minerado (passo 2)**: distribuir entre os corpos os **ângulos que mais se repetem / mais vendem** nos ads escalados do nicho, garantindo variedade entre os corpos (não repetir o mesmo ângulo em todos).
-- **Respeitar restrições do briefing** (ex.: "≥3 corpos com superestrutura", "usar tal gancho"). Se o briefing amarrar uma big idea específica, usar essa; fora isso, é julgamento do Copychief.
+- **Minerar o repertório (passo 2) e gerar 6 big ideias candidatas** — os ângulos que mais se repetem / mais vendem nos ads escalados do nicho.
+- **Apresentar as 6 ao usuário, recomendando pelo menos 3 de preferência do Copychief** (sinalizar quais e por quê, com base na mineração), mas **sem escrever nenhum criativo ainda**.
+- **Esperar o usuário bater o martelo** — ele decide quais big ideias (uma por corpo) serão de fato trabalhadas. Só depois disso seguir pra escrita e entrega completa.
+- **Respeitar restrições do briefing** (ex.: "≥3 corpos com superestrutura", "usar tal gancho"). Se o briefing já amarrar uma big idea específica, ela entra garantida entre as 6 candidatas.
 - Uma big idea por corpo. Registrar a tag curta escolhida no campo `Big Idea:` de cada criativo no doc (ex.: `Celebridade`, `Anti-Mounjaro`, `Vazou/viral`). Só usar `não se aplica` se realmente não houver ângulo amarrado.
-- **Quando perguntar (única exceção):** só se faltar um **campo obrigatório do briefing** (nicho, oferta, plataforma, gancho, nº de hooks) ou houver ambiguidade que muda o resultado. Decisão criativa (big idea, ângulo, avatar, lettering, seleção de hook) nunca é pergunta — é entrega.
+- **Quando mais perguntar:** além da seleção de big ideia (acima), só se faltar um **campo obrigatório do briefing** (nicho, oferta, plataforma, gancho, nº de hooks) ou houver ambiguidade que muda o resultado. As demais decisões criativas (ângulo dentro da big idea escolhida, avatar, lettering, seleção de hook) continuam sem pergunta — é entrega direta.
 
 ### 4. Escrita do criativo
 
