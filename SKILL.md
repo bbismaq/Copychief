@@ -333,7 +333,7 @@ Depois da big ideia escolhida, escrever:
   - Tipografia: serif pra headings/big ideia (tom narrativo, combina com depoimento/VSL), sans-serif pro corpo, monoespaçada pros números do relatório (`tabular-nums`).
   - Barra de estatísticas no topo (corpos, hooks entregues, hooks escritos, duração média).
   - Nav de âncora pra pular entre os N criativos.
-  - Por criativo: número + big idea + avatar em destaque logo abaixo → lista dos **8 hooks escritos com os selecionados marcados visualmente** (ex.: "usado") → corpo em prosa larga o suficiente pra leitura confortável (~65ch) → lettering UGC como chips → rodapé com caracteres/duração daquele criativo.
+  - Por criativo: número + big idea + avatar em destaque logo abaixo → lista dos **8 hooks escritos com os selecionados marcados visualmente por estilo** (destaque de cor/fundo no item, ex.: classe `sel` no `<li>` — **nunca** com a palavra "usado"/"used" escrita dentro do texto do hook) → corpo em prosa larga o suficiente pra leitura confortável (~65ch) → lettering UGC como chips → rodapé com caracteres/duração daquele criativo.
   - Sem exagero de animação/hero — é um documento de trabalho pra aprovação rápida, não uma landing page.
 - Se o usuário pedir explicitamente um `.txt` além do Artifact (ex.: pra arquivar localmente ou importar em outro lugar), gerar normalmente — o Artifact não substitui isso quando pedido, só é o padrão quando não especificado.
 - **Relatório bilíngue obrigatório (regra do usuário, 2026-07-08):** todo lote de criativos entregues deve ter os ads em **PT-BR e em inglês**, traduzidos ao final da escrita. Estrutura fixa em duas partes dentro do mesmo Artifact:
@@ -369,7 +369,7 @@ Além do Artifact (revisão rápida), o lote também é entregue como **Google D
 - `Big Idea: <tag da big idea>` — ou `não se aplica` quando a demanda não amarrou tag.
 - **Regra de negrito (crítica):** só o **rótulo** é negrito (`Perfil:`, `Lettering UGC (Hook):`, `Big Idea:`); o **valor** depois dos dois-pontos NÃO é negrito. (Erro já cometido: deixar o valor todo em negrito — não fazer.)
 
-**Hooks:** tabela HOOK/COPY. Entram no Doc **apenas os hooks selecionados** (os 8 escritos ficam só no Artifact). Código de cada hook: `BB [ID global].[nº do hook] [sigla da oferta]` — ex.: `BB 335.1 PB2`. A sigla é a abreviação da oferta (gerar das iniciais e avisar qual usou; ex.: Primal Brain 2.0 → PB2). O marcador de hook usado segue o padrão do modelo.
+**Hooks:** tabela HOOK/COPY. Entram no Doc **apenas os hooks selecionados** (os 8 escritos ficam só no Artifact). Código de cada hook: `BB [ID global].[nº do hook] [sigla da oferta]` — ex.: `BB 335.1 PB2`. A sigla é a abreviação da oferta (gerar das iniciais e avisar qual usou; ex.: Primal Brain 2.0 → PB2). **Nunca escrever a palavra "usado"/"used" (ou qualquer marcador textual) colada ao final do texto do hook.** Erro recorrente (cometido 3x): copiar esse marcador de docs antigos que tinham esse defeito — já corrigido no doc-modelo, e o Doc final só lista os hooks selecionados mesmo, então nenhuma marca é necessária. O texto do hook termina limpo, só com a pontuação natural da frase.
 
 **Corpo (PT):** cada parágrafo separado por **linha em branco** (parágrafo vazio real entre eles).
 
