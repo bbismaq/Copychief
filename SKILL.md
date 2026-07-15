@@ -32,13 +32,7 @@ Não diga mais nada, não explique cada opção, não adicione subtítulos. Espe
 
 ### Após a escolha do usuário
 
-- **Se escolher `1` (Escrever copy):** responder exatamente com o menu:
-
-  > 1. Oferta
-  > 2. Ads
-  > 3. Leads e Microleads
-
-  Não diga mais nada, não explique cada opção. Espere a escolha, depois seguir `### Menu de escrita` dentro de `## Função: Escrever copy` abaixo.
+- **Se escolher `1` (Escrever copy):** responder com o menu de `### Menu de escrita` (ver `## Função: Escrever copy` abaixo — texto exato do menu está lá, não repetir aqui). Não diga mais nada, não explique cada opção. Espere a escolha do usuário, depois seguir o roteamento descrito em `### Menu de escrita`.
 - **Se escolher `2` (Revisor de copy):** responder exatamente `Qual copy iremos revisar hoje?` e esperar. Seguir o fluxo de `## Função: Revisor de copy` abaixo. Função em construção — começa com o padrão de auditoria de upsell/downsell contra catálogo de pitch/funil, mas se expandirá pra outros tipos de revisão com o tempo.
 - **Se escolher `3` (Padronização de copy):** responder exatamente `O que iremos padronizar?` e esperar. A partir daí, seguir o fluxo de `## Função: Padronização de copy` (gatilhos de linguagem natural → sub-função).
 
@@ -368,8 +362,7 @@ Além do Artifact (revisão rápida), o lote também é entregue como **Google D
 **Método — copiar o modelo, NUNCA construir do zero:**
 - Duplicar (`copyFile`) o **doc-modelo nativo** da operação — ele já traz toda a formatação (tabelas, logo, cores, estilos). Doc-modelo de referência atual: `1trx6y7aKxEbKdMTVF0t9ZCxKSbv8haubaWbhpP3H2Ho` (na pasta `1xrd_-Pa90lbcMjES-ha5L3_NMr9x-WUW`). Deixar o modelo intocado.
 - **Cuidado: "doc-modelo" (referência de formatação) ≠ "doc mais recente" (referência de ID global) — não são necessariamente o mesmo arquivo (erro já cometido, 2026-07-10).** O doc do mês mais recente é usado só pra ler o último ID global e continuar a sequência — ele pode ter defeitos de formatação próprios que nunca foram comparados contra o doc-modelo confirmado. Antes de clonar QUALQUER doc como base estrutural, comparar pontos críticos (estilo do título de cada criativo, presença de linha em branco no bloco-título, tamanho de fonte dos códigos de hook) contra o doc-modelo confirmado — não presumir que "é o doc mais novo, logo está certo".
-- Trocar só o CONTEÚDO, preferindo **`findAndReplace`** (herda a formatação do texto substituído — negrito/caixa alta/cor ficam sozinhos). Inserção por índice (`insertText`) só quando `findAndReplace` não resolve (ex.: dois hooks de texto idêntico).
-- **🚫 NUNCA `findAndReplace` de uma linha inteira que tenha DOIS estilos misturados dentro dela mesma (regra do usuário, 2026-07-13 — erro repetido em pelo menos duas demandas seguidas).** O bloco-título tem linhas assim: rótulo em negrito colado com valor sem negrito, na mesma linha (`"Perfil: mulher, X anos..."`). Se a troca inclui rótulo+valor no MESMO `findAndReplace`, a ferramenta herda a formatação de forma uniforme a partir do trecho substituído — os dois estilos colapsam em um só (geralmente o valor herda o negrito do rótulo). **Fazer separado:** trocar o valor sozinho (ex.: `findAndReplace("mulher, 66 anos", "mulher, 54 anos")`, sem incluir "Perfil: ") preserva o negrito do rótulo intocado. Se já trocou a linha inteira por engano, corrigir com `applyTextStyle({textToFind: "<só o valor>"}, {bold: false})` — nunca reescrever a linha de novo.
+- Trocar só o CONTEÚDO, preferindo **`findAndReplace`** (herda a formatação do texto substituído). **Exceção crítica — checar SEMPRE antes de trocar (regra do usuário, 2026-07-13 — erro repetido em pelo menos duas demandas seguidas): se a linha tem DOIS estilos misturados dentro dela mesma** (o bloco-título tem linhas assim — rótulo em negrito colado com valor sem negrito, tipo `"Perfil: mulher, X anos..."`), **NUNCA** fazer `findAndReplace` da linha inteira — a ferramenta herda a formatação de forma uniforme a partir do trecho substituído, e os dois estilos colapsam em um só (geralmente o valor herda o negrito do rótulo). Nesse caso, trocar só o valor (ex.: `findAndReplace("mulher, 66 anos", "mulher, 54 anos")`, sem incluir "Perfil: ") preserva o negrito do rótulo intocado. Se já trocou a linha inteira por engano, corrigir com `applyTextStyle({textToFind: "<só o valor>"}, {bold: false})` — nunca reescrever a linha de novo. Inserção por índice (`insertText`) só quando `findAndReplace` não resolve por outro motivo (ex.: dois hooks de texto idêntico).
 - **Armadilhas técnicas (não repetir erros já cometidos):**
   - NUNCA `replaceDocumentWithMarkdown` (destrói a formatação).
   - NUNCA tentar deletar o range INTEIRO de uma célula de tabela — a marca de parágrafo final é protegida e a API dá erro. Pra reescrever corpo, use `findAndReplace` ou inserção-only.
@@ -759,18 +752,15 @@ Cada chamada pode invalidar índices coletados por chamadas anteriores. Refazer 
 - **Avisar quando algo der errado** — não tentar mascarar. Se o índice der invalid, ler o JSON e recalcular.
 - **Não inferir intenção** quando ambíguo — perguntar. Ex: "qual linha é o título?" é melhor do que aplicar TITLE numa linha qualquer.
 
-## Armadilhas técnicas críticas (NUNCA fazer)
+## Armadilhas técnicas — onde encontrar (2026-07-14: não existe mais lista global separada)
 
-1. ❌ `replaceDocumentWithMarkdown` em doc já formatado — destrói toda formatação (título, fontes, imagem, cores). USAR APENAS em doc novo/vazio ou quando explicitamente autorizado a reconstruir.
-2. ❌ `findAndReplace " " → ""` — apaga TODOS os espaços do doc (4000+ ocorrências). Catástrofe.
-3. ❌ `findAndReplace` com NBSP (U+00A0) sozinho — perigoso por confusão com espaço normal.
-4. ❌ Inserir `\n` em ordem CRESCENTE de índice — invalida índices subsequentes.
-5. ❌ Aplicar `applyParagraphStyle` global com `endIndex` maior que `docLength` — erra. Ler JSON pra descobrir `docLength` real OU testar e ajustar pelo erro.
-6. ❌ Usar `replaceDocumentWithMarkdown` pra inserir conteúdo na Construção do zero — colapsa `\n\n` em paragraph break único, removendo blanks reais. Use `deleteRange` + `insertText` literal.
-7. ❌ Zerar spacing em range parcial (`1` até número chutado) — região não-coberta vira double-blank visual. Sempre `1` até `docLength - 1`.
-8. ❌ Confiar em `foregroundColor: {}` vazio como "preto default" no JSON — pode renderizar vermelho visual por herança. Após colorir rótulo, SEMPRE aplicar `#000000 + bold:false` explícito no conteúdo da fala.
-9. ❌ Inserir `\n` adjacente a range estilizado e deixar o blank com estilo herdado — o blank fica vermelho/bold mesmo sendo vazio. Limpar textStyle dos blanks adjacentes a rótulos coloridos.
-10. ❌ Declarar tarefa concluída sem rodar `validar_padronizacao` — verificações ad-hoc deixam passar erro visual. Validação é gate obrigatório de saída.
+A lista global que existia aqui antes ficou desatualizada (parou de refletir regras novas assim que qualquer seção ganhava uma armadilha nova) e duplicava conteúdo já explicado em detalhe nas seções específicas — duas cópias da mesma regra, uma delas sempre acaba obsoleta. Cada função/sub-função documenta as próprias armadilhas perto do protocolo que elas afetam; ao trabalhar em qualquer uma, ler as armadilhas DELA, não confiar em memória de uma lista genérica:
+
+- **Adaptação de copy** → seção "Armadilhas críticas em trocas de produto / formato" (checks a-e).
+- **Construção de copy do zero** → "Protocolo de ordem fixa" (12 passos, cada um previne uma falha documentada) + "Armadilhas adicionais".
+- **Criativos de copy → Entrega em Google Doc** → bloco "Armadilhas técnicas" dentro do passo 6.
+- **`arrumar_paragrafos`** → "Armadilhas a evitar" própria.
+- **Qualquer sub-função de Padronização** → `validar_padronizacao` é o gate final obrigatório antes de declarar concluído; não existe validação ad-hoc que substitua essa chamada.
 
 ## Sobre o usuário
 
