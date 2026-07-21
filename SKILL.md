@@ -398,6 +398,30 @@ Além do Artifact (revisão rápida), o lote também é entregue como **Google D
 
 **Pasta de destino (estrutura de entrega, já existente):** `1.0 CRIATIVOS` (id `1NOlUecQxboyIpO7F3WfrgEWG_jUN1OFV`) → `[ano]` → `[NN. Mês]` (ex.: `2026` → `07. Julho`). Salvar o Doc da demanda na pasta do **mês corrente** (criar a pasta do mês se ainda não existir). Um Doc por demanda, com o nº sequencial no nome. É a mesma estrutura de onde se lê o último ID global (acima). A subpasta `Swipe de ADS Validados`, dentro de `1.0 CRIATIVOS`, é repertório — não é destino de entrega.
 
+**Passo final obrigatório — rodar `validar_criativos(doc_id)` (sub-função abaixo) antes de declarar a entrega concluída (regra do usuário, 2026-07-15).** Não existia gate final pra essa função (diferente de Construção do zero, que já tem `validar_padronizacao`) — por isso cada demanda-teste vazava um tipo diferente de erro de formatação pro usuário ter que apontar manualmente. Não declarar NENHUMA demanda de Criativos concluída sem essa validação passar limpa, nem em demanda de teste/fictícia.
+
+## Sub-função: `validar_criativos(doc_id)`
+
+**O que faz:** roda uma checklist automática no JSON do doc entregue pela função Criativos, cobrindo os erros que já vazaram pro usuário pegar manualmente em mais de uma demanda-teste. **Chamada obrigatória antes de declarar QUALQUER entrega de Criativos em Google Doc concluída** (regra do usuário, 2026-07-15).
+
+**Por quê existe:** a função Criativos nunca teve um gate final equivalente ao `validar_padronizacao` (que já existe pra Construção do zero). Sem gate obrigatório, cada demanda dependia de verificação ad-hoc — e cada vez um tipo diferente de erro escapava, porque verificação ad-hoc lembra dos erros já vistos individualmente, mas nunca de todos ao mesmo tempo, de forma consistente. Esse gate consolida os checks conhecidos num único ponto de saída, do mesmo jeito que `validar_padronizacao` já faz pra outra função.
+
+**Protocolo:**
+
+1. **Ler o doc em JSON via `readDocument` format=json** (arquivo salvo em chunks se truncar).
+2. **Rodar os 7 checks abaixo** (via script Node no arquivo salvo, ou subagent — reportar resultado de cada um, não só "passou"):
+   - **A. Nenhuma tabela aninhada** dentro de célula de outra tabela. Sinal de índice de `cloneTable` desatualizado (usado um `index` que já não correspondia mais à posição real depois de outra edição ter deslocado o doc). Verificar recursivamente `tableCell.content[].table`.
+   - **B. Campos do cabeçalho (Data/Projeto/Plataforma) batem com o briefing da demanda** — nenhum valor residual do doc-modelo (ex.: `"Memopezil"` sobrando no campo Projeto) escapou.
+   - **C. Em cada bloco-título, os rótulos `Perfil:`/`Lettering UGC (Hook):`/`Big Idea:` têm negrito só no rótulo.** Verificar que nenhum textRun em negrito termina cortado no meio da palavra do rótulo (padrão de detecção: um run em negrito terminando em `"Big Id"`, `"Letterin"`, `"Perfi"` etc — sinal de que o split ficou no lugar errado).
+   - **D. Todo placeholder `[link a inserir]` está sem `textStyle` residual** (sem `link`, `underline` ou `foregroundColor` coloridos) **e sem caractere solto colado logo depois** (ex.: uma barra `/` sobrando de um link antigo apagado pela metade — erro já cometido, 2026-07-15).
+   - **E. Todo código de hook (`BB X.X SIGLA`) está em 9pt.** Negrito pode vir herdado do `HEADING_2` da célula original OU explícito nas linhas extras clonadas — os dois contam como OK; o que não pode variar é o `fontSize`.
+   - **F. Nenhum hook tem texto duplicado com outro hook do mesmo criativo** (defeito conhecido do doc-modelo — ver armadilha correspondente acima).
+   - **G. Seção EN:** parágrafo `TRADUÇÃO (EN)` usa `namedStyleType: "TITLE"`; todos os demais parágrafos da seção têm `spaceAbove`/`spaceBelow` batendo com o padrão do modelo (12pt/12pt no Memopezil atual); nenhuma palavra do mecanismo/nicho antigo do template (ex.: `"honey"`, `"Okinawa"`) sobrou.
+3. **Se algum check falhar:** corrigir e **RE-rodar a validação até passar limpa.** Não declarar a demanda concluída com qualquer check vermelho.
+4. **Reportar ao usuário os resultados, mesmo quando tudo passa** — visibilidade rápida do que foi conferido, não só "tá tudo certo, confia".
+
+**Quando rodar:** sempre ao fim de qualquer entrega de Criativos em Google Doc — trocar conteúdo de um doc-modelo clonado (fluxo padrão) ou construir/editar uma seção nova dentro dele. **Não pular mesmo em demanda de teste/fictícia** — foi justamente numa sequência de demandas-teste que a ausência desse gate ficou evidente.
+
 ## Função: Revisor de copy
 
 Função guarda-chuva pra qualquer demanda de **revisão de copy**. Em construção — começa com um padrão conhecido e vai sendo refinada com o tempo conforme novos tipos de revisão aparecerem.
@@ -764,7 +788,7 @@ A lista global que existia aqui antes ficou desatualizada (parou de refletir reg
 
 - **Adaptação de copy** → seção "Armadilhas críticas em trocas de produto / formato" (checks a-e).
 - **Construção de copy do zero** → "Protocolo de ordem fixa" (12 passos, cada um previne uma falha documentada) + "Armadilhas adicionais".
-- **Criativos de copy → Entrega em Google Doc** → bloco "Armadilhas técnicas" dentro do passo 6.
+- **Criativos de copy → Entrega em Google Doc** → bloco "Armadilhas técnicas" dentro do passo 6; `validar_criativos` é o gate final obrigatório antes de declarar concluído (mesmo papel que `validar_padronizacao` cumpre pra Padronização) — não existe validação ad-hoc que substitua essa chamada.
 - **`arrumar_paragrafos`** → "Armadilhas a evitar" própria.
 - **Qualquer sub-função de Padronização** → `validar_padronizacao` é o gate final obrigatório antes de declarar concluído; não existe validação ad-hoc que substitua essa chamada.
 
